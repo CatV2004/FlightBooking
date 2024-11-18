@@ -1,0 +1,155 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!--<h1 class="text-center text-danger mt-1">ĐĂNG KÝ NGƯỜI DÙNG</h1>-->
+
+<!--{% if err_msg %}-->
+<!--<div class="alert alert-danger">-->
+<!--    {{ err_msg }}-->
+<!--</div>-->
+<!--{% endif %}-->
+
+<!--<form method="post" action="/register" enctype="multipart/form-data">-->
+<!--    <div class="form-floating mb-3 mt-3">-->
+<!--        <input type="text" class="form-control" id="name" placeholder="Họ tên" name="name">-->
+<!--        <label for="name">Họ tên</label>-->
+<!--    </div>-->
+<!--    <div class="form-floating mb-3 mt-3">-->
+<!--        <input type="text" class="form-control" id="username" placeholder="Họ tên" name="username">-->
+<!--        <label for="username">Tên đăng nhập</label>-->
+<!--    </div>-->
+<!--    <div class="form-floating mb-3 mt-3">-->
+<!--        <input type="password" class="form-control" id="password" placeholder="Mật khẩu" name="password">-->
+<!--        <label for="password">Mật khẩu</label>-->
+<!--    </div>-->
+<!--    <div class="form-floating mb-3 mt-3">-->
+<!--        <input type="password" class="form-control" id="confirm" placeholder="Xác nhận mật khẩu" name="confirm">-->
+<!--        <label for="confirm">Xác nhận mật khẩu</label>-->
+<!--    </div>-->
+<!--    <div class="form-floating mb-3 mt-3">-->
+<!--        <input type="file" accept=".png,.jpg" class="form-control" id="avatar" placeholder="Ảnh đại diện" name="avatar">-->
+<!--        <label for="avatar">Ảnh đại diện</label>-->
+<!--    </div>-->
+<!--    <div class="form-floating mb-3 mt-3">-->
+<!--        <button type="submit" class="btn btn-success">Đăng ký</button>-->
+<!--    </div>-->
+<!--</form>-->
+
+<!-- This snippet uses Font Awesome 5 Free as a dependency. You can download it at fontawesome.io!-->
+
+<style>
+    body {
+        background: #007bff;
+        background: linear-gradient(to right, #0062E6, #33AEFF);
+    }
+
+    .card-img-left {
+        width: 45%;
+        background: scroll center url('https://source.unsplash.com/WEQbe2jBg40/414x512');
+        background-size: cover;
+    }
+
+    .btn-login {
+        font-size: 0.9rem;
+        letter-spacing: 0.05rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .btn-google {
+        color: #ffffff !important; /* Đảm bảo chữ màu trắng */
+        background-color: #ea4335 !important; /* Màu nền Google */
+        border: none; /* Loại bỏ viền nếu cần */
+        box-shadow: none; /* Loại bỏ shadow (nếu Bootstrap thêm vào) */
+    }
+
+    .btn-google:hover {
+        background-color: #d8362a; /* Màu nền khi hover */
+    }
+
+    .btn-facebook {
+        color: #ffffff !important; /* Đảm bảo chữ màu trắng */
+        background-color: #3b5998 !important; /* Màu nền Facebook */
+        border: none;
+        box-shadow: none;
+    }
+
+    .btn-facebook:hover {
+        background-color: #2d4373; /* Màu nền khi hover */
+    }
+
+</style>
+
+
+<body>
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-5 col-xl-5">
+            <div class="card flex-row my-5 shadow border-0 rounded-3">
+                <div class="card-body p-4 p-sm-5">
+                    <h5 class="card-title text-center mb-4 fw-light fs-5">Đăng ký</h5>
+                    {% if err_msg %}
+                    <div class="alert alert-danger">
+                        {{ err_msg }}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" action="/register" enctype="multipart/form-data">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="name" placeholder="Họ tên" name="name" required>
+                            <label for="name">Họ tên</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="username" placeholder="Họ tên" name="username"
+                                   required>
+                            <label for="username">Tên đăng nhập</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" placeholder="name@example.com"
+                                   name="email" required>
+                            <label for="email">Địa chỉ Email</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" placeholder="Mật khẩu"
+                                   name="password" required>
+                            <label for="password">Mật khẩu</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="confirm" placeholder="Xác nhận mật khẩu"
+                                   name="confirm" required>
+                            <label for="confirm">Xác nhận mật khẩu</label>
+                        </div>
+
+                        <div class="d-grid mb-2">
+                            <button class="btn btn-primary btn-lg btn-login fw-bold text-uppercase" type="submit">
+                                Đăng ký
+                            </button>
+                        </div>
+
+                        <a class="d-block text-center mt-2 small" href="/login">Đã có tài khoản? Đăng nhập</a>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid mb-2">
+                            <a href="{{ url_for('login_google') }}"
+                               class="btn btn-google btn-lg btn-login fw-bold text-uppercase">
+                                <i class="fab fa-google me-2"></i> Đăng nhập với Google
+                            </a>
+                        </div>
+
+
+                        <div class="d-grid">
+                            <button class="btn btn-facebook btn-lg btn-login fw-bold text-uppercase" type="button">
+                                <i class="fab fa-facebook-f me-2"></i> Đăng nhập với Facebook
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+{% endblock %}
