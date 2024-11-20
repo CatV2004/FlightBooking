@@ -111,7 +111,7 @@ a.navbar-brand {
 
 .booking-form .form-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .booking-form .form-control {
@@ -256,6 +256,37 @@ a.navbar-brand {
 .booking-form .submit-btn:focus {
     opacity: 0.9;
 }
+
+.text-muted {
+    font-size: 0.9rem;
+}
+
+.fw-bold {
+    font-size: 1rem;
+}
+
+.active {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.slide {
+    animation: slideIn 0.5s forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+
 
 /*container-template*/
 body {

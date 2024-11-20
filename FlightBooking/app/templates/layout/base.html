@@ -35,6 +35,13 @@
 
     <script src="../static/js/script.js"></script>
 
+    <!-- Block thêm script tùy chỉnh -->
+    {% block custom_head_scripts %}
+    {% endblock %}
+    <!-- Block thêm css tùy chỉnh -->
+    {% block custom_styles %}
+    {% endblock %}
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body>

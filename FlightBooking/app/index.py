@@ -96,5 +96,14 @@ def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
 
+# Gọi page profile
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')  # Chỉ định template `profile.html`
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
