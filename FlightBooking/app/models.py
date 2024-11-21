@@ -72,38 +72,38 @@ class TaiKhoan(db.Model, UserMixin):
     nguoi_dung_id = Column(Integer, ForeignKey(NguoiDung.id), nullable=False)
 
 
-class Admin(NguoiDung, UserMixin):
+class Admin(TaiKhoan, UserMixin):
     __tablename__ = 'Admin'
-    id = Column(Integer, ForeignKey(NguoiDung.id), primary_key=True)
+    id = Column(Integer, ForeignKey(TaiKhoan.id), primary_key=True)
     ngay_vao_lam = Column(Date)
     kinh_nghiem = Column(String(200))
 
     __mapper_args__ = {
-        'inherit_condition': id == NguoiDung.id
+        'inherit_condition': id == TaiKhoan.id
     }
 
 
-class KhachHang(NguoiDung, UserMixin):
+class KhachHang(TaiKhoan, UserMixin):
     __tablename__ = 'KhachHang'
-    id = Column(Integer, ForeignKey(NguoiDung.id), primary_key=True)
+    id = Column(Integer, ForeignKey(TaiKhoan.id), primary_key=True)
     hang_thanh_vien = Column(Enum(HangThanhVien), default=HangThanhVien.BAC, nullable=False)
     don_hang = relationship('DonHang', backref='KhachHang')
 
     __mapper_args__ = {
-        'inherit_condition': id == NguoiDung.id
+        'inherit_condition': id == TaiKhoan.id
     }
 
 
-class NhanVien(NguoiDung, UserMixin):
+class NhanVien(TaiKhoan, UserMixin):
     __tablename__ = 'NhanVien'
-    id = Column(Integer, ForeignKey('NguoiDung.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(TaiKhoan.id), primary_key=True)
     luong = Column(Float, nullable=False)
     ngay_vao_lam = Column(Date, nullable=False)
     ghi_chu = Column(String(200))
     don_hang = relationship('DonHang', backref='NhanVien')
 
     __mapper_args__ = {
-        'inherit_condition': id == NguoiDung.id
+        'inherit_condition': id == TaiKhoan.id
     }
 
 

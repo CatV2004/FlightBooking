@@ -7,9 +7,11 @@ import dao
 from app import app, login, google
 from flask_login import login_user, logout_user
 
+
 @app.route("/")
 def index():
     return render_template('index.html')
+
 
 @app.route("/register", methods=['get', 'post'])
 def register_view():
@@ -38,7 +40,7 @@ def register_view():
 
 @app.route("/login", methods=['get', 'post'])
 def login_view():
-    err_msg =''
+    err_msg = ''
     if request.method.__eq__('POST'):
         username = request.form.get('username')
         password = request.form.get('password')
@@ -54,8 +56,8 @@ def login_view():
             else:
                 err_msg = 'Tài khoản không tồn tại.'
 
-
     return render_template('login.html', err_msg=err_msg)
+
 
 # Gọi đăng nhập Google
 @app.route('/login/google')
@@ -64,18 +66,50 @@ def login_google():
     return google.authorize_redirect(redirect_uri)
 
 
+# @app.route('/login/google/callback')
+# def google_callback():
+#     try:
+#         token = google.authorize_access_token()
+#         user_info = google.get('userinfo').json()
+#
+#         # Lấy thông tin người dùng từ Google
+#         email = user_info['email']
+#         name = user_info.get('name', email)
+#
+#         # Thêm hoặc lấy người dùng từ cơ sở dữ liệu
+#         user = dao.add_or_get_user_from_google(name=name, username=email, email=email)
+#
+#         # Đăng nhập người dùng
+#         login_user(user=user)
+#         return redirect('/')
+#     except Exception as e:
+#         print(f"Lỗi khi xử lý đăng nhập Google: {e}")
+#         return redirect('/login')
 @app.route('/login/google/callback')
 def google_callback():
     try:
+        # Lấy token từ Google
         token = google.authorize_access_token()
-        user_info = google.get('userinfo').json()
 
         # Lấy thông tin người dùng từ Google
-        email = user_info['email']
-        name = user_info.get('name', email)
+        user_info = google.get('userinfo').json()
+
+        # Trích xuất thông tin cần thiết
+        email = user_info.get('email')
+        name = user_info.get('name', email)  # Nếu 'name' không có, dùng email làm mặc định
+
+        # Nếu first_name hoặc last_name tách từ name
+        name_parts = name.split(' ', 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
 
         # Thêm hoặc lấy người dùng từ cơ sở dữ liệu
-        user = dao.add_or_get_user_from_google(name=name, username=email)
+        user = dao.add_or_get_user_from_google(
+            first_name=first_name,
+            last_name=last_name,
+            username=email,
+            email=email
+        )
 
         # Đăng nhập người dùng
         login_user(user=user)
@@ -100,9 +134,6 @@ def load_user(user_id):
 @app.route('/profile')
 def profile():
     return render_template('profile.html')  # Chỉ định template `profile.html`
-
-
-
 
 
 if __name__ == '__main__':
