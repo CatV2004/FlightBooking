@@ -1,16 +1,24 @@
-from app.models import User
+from datetime import datetime
+
+from app.models import TaiKhoan, NguoiDung, Admin, KhachHang, NhanVien
 from app import app, db
 import hashlib
 import cloudinary.uploader
 
 
-
-def add_or_get_user_from_google(name, username):
-    user = User.query.filter_by(username=username).first()
+def add_or_get_user_from_google(first_name, last_name, username):
+    # Kiểm tra nếu user đã tồn tại
+    user = TaiKhoan.query.filter_by(ten_dang_nhap=username).first()
     if not user:
         try:
-            user = User(name=name, username=username, password="")
+
+            # Tạo đối tượng NguoiDung liên kết với tài khoản
+            user = NguoiDung(fname=first_name, lname=last_name)
+            # Sau đó, Tạo mới tài khoản người dùng nếu không tồn tại
+            account = TaiKhoan(ten_dang_nhap=username, mat_khau="", trang_thai=True, nguoi_dung_id=user.id)
+
             db.session.add(user)
+            db.session.add(account)
             db.session.commit()
         except Exception as ex:
             db.session.rollback()
@@ -19,29 +27,44 @@ def add_or_get_user_from_google(name, username):
     return user
 
 
-def add_user(name, username, password):
+def add_user(first_name, last_name, username, password, email, extra_info=None):
     try:
-        password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
+        # Mã hóa mật khẩu
+        password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
-        u = User(name=name, username=username, password=password)
-        db.session.add(u)
+        # Tạo đối tượng NguoiDung
+        user = NguoiDung(fname=first_name, lname=last_name, email=email)
+        db.session.add(user)
         db.session.commit()
+
+        # Sau đó, Tạo tài khoản người dùng liên kết với người dùng
+        account = TaiKhoan(ten_dang_nhap=username, mat_khau=password, nguoi_dung_id=user.id)
+        db.session.add(account)
+        db.session.commit()
+
+        # Sau đó, tạo bảng KhachHang
+        customer = KhachHang(id=user.id)
+        db.session.add(customer)
+        db.session.commit()
+
     except Exception as ex:
-        db.rollback()
+        db.session.rollback()
         print(f"Error: {ex}")
         raise ex
 
 
 def auth_user(username, password):
-    password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
+    # Mã hóa mật khẩu
+    password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
-    return User.query.filter(User.username.__eq__(username),
-                             User.password.__eq__(password)).first()
+    # Kiểm tra tài khoản và mật khẩu
+    return TaiKhoan.query.filter(TaiKhoan.ten_dang_nhap == username, TaiKhoan.mat_khau == password).first()
 
 
 def get_user_by_id(id):
-    return User.query.get(id)
+    return TaiKhoan.query.get(id)
 
-#kiểm tra username có tồn tại không
+
+# Kiểm tra username có tồn tại không
 def is_username_exists(username):
-    return User.query.filter(User.username.__eq__(username)).first() is not None
+    return TaiKhoan.query.filter(TaiKhoan.ten_dang_nhap == username).first() is not None

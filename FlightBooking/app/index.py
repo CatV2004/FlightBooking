@@ -15,7 +15,8 @@ def index():
 def register_view():
     err_msg = ''
     if request.method.__eq__('POST'):
-        name = request.form.get('name')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
@@ -28,7 +29,6 @@ def register_view():
         else:
             data = request.form.copy()
             del data['confirm']
-            del data['email']
             dao.add_user(**data)
 
             return redirect('/login')
