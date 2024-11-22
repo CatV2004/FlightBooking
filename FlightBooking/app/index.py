@@ -5,7 +5,7 @@ from numpy.f2py.symbolic import ewarn
 
 import dao
 from app import app, login, google
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 
 @app.route("/")
@@ -135,6 +135,7 @@ def load_user(user_id):
 @app.route('/profile')
 def profile():
     return render_template('profile.html')  # Chỉ định template `profile.html`
+
 
 
 if __name__ == '__main__':

@@ -76,7 +76,7 @@ def auth_user(username, password):
 
 
 def get_user_by_id(id):
-    return TaiKhoan.query.get(id)
+    return NguoiDung.query.get(id)
 
 
 # Kiểm tra username có tồn tại không
