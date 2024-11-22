@@ -16,8 +16,7 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <span class="form-label">Từ</span>
-                                    <input class="form-control" type="text" placeholder="Thành phố" name="from"
-                                           required>
+                                    <input class="form-control" type="text" placeholder="City" name="from" required>
                                 </div>
                             </div>
                             <div class="col-md-2 text-center">
@@ -28,8 +27,7 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <span class="form-label">Đến</span>
-                                    <input class="form-control" type="text" placeholder="Thành phố" name="to"
-                                           required>
+                                    <input class="form-control" type="text" placeholder="City" name="to" required>
                                 </div>
                             </div>
                         </div>
@@ -49,7 +47,8 @@
                                     <label for="roundTripToggle" class="form-label mb-0">Khứ hồi</label>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <input class="form-control" type="date" id="returnDate" disabled style="color: #6c757d;">
+                                    <input class="form-control" type="date" id="returnDate" disabled
+                                           style="color: #6c757d;">
                                 </div>
                             </div>
 
@@ -61,6 +60,18 @@
                                         <option>Thương gia</option>
                                     </select>
                                     <span class="select-arrow"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 mt-3">
+                                <div class="form-group text-center">
+                                    <span class="form-label">Số lượng vé</span>
+                                    <div class="input-group d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-outline-primary rounded" type="button">-</button>
+                                        <input type="text" class="form-control text-center mx-2" value="1"
+                                               style="width: 50px; border-radius: 30px !important;" readonly>
+                                        <button class="btn btn-outline-primary rounded" type="button">+</button>
+                                    </div>
                                 </div>
                             </div>
 

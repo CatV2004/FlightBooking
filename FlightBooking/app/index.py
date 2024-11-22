@@ -7,6 +7,8 @@ import dao
 from app import app, login, google
 from flask_login import login_user, logout_user, current_user
 
+from app.models import TaiKhoan
+
 
 @app.route("/")
 def index():
@@ -67,25 +69,6 @@ def login_google():
     return google.authorize_redirect(redirect_uri)
 
 
-# @app.route('/login/google/callback')
-# def google_callback():
-#     try:
-#         token = google.authorize_access_token()
-#         user_info = google.get('userinfo').json()
-#
-#         # Lấy thông tin người dùng từ Google
-#         email = user_info['email']
-#         name = user_info.get('name', email)
-#
-#         # Thêm hoặc lấy người dùng từ cơ sở dữ liệu
-#         user = dao.add_or_get_user_from_google(name=name, username=email, email=email)
-#
-#         # Đăng nhập người dùng
-#         login_user(user=user)
-#         return redirect('/')
-#     except Exception as e:
-#         print(f"Lỗi khi xử lý đăng nhập Google: {e}")
-#         return redirect('/login')
 @app.route('/login/google/callback')
 def google_callback():
     try:
@@ -93,13 +76,14 @@ def google_callback():
         token = google.authorize_access_token()
 
         # Lấy thông tin người dùng từ Google
+
         user_info = google.get('userinfo').json()
 
         # Trích xuất thông tin cần thiết
         email = user_info.get('email')
         name = user_info.get('name', email)  # Nếu 'name' không có, dùng email làm mặc định
 
-        # Nếu first_name hoặc last_name tách từ name
+        # first_name hoặc last_name tách từ name
         name_parts = name.split(' ', 1)
         first_name = name_parts[0]
         last_name = name_parts[1] if len(name_parts) > 1 else ''
@@ -112,9 +96,11 @@ def google_callback():
             email=email
         )
 
-        # Đăng nhập người dùng
-        login_user(user=user)
-        return redirect('/')
+        if user:
+            login_user(user=user)  # Đăng nhập người dùng
+            return redirect('/')  # Chuyển hướng về trang chủ
+        else:
+            raise Exception("Người dùng không hợp lệ hoặc không được tạo thành công.")
     except Exception as e:
         print(f"Lỗi khi xử lý đăng nhập Google: {e}")
         return redirect('/login')
@@ -131,11 +117,11 @@ def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
 
+
 # Gọi page profile
 @app.route('/profile')
 def profile():
     return render_template('profile.html')  # Chỉ định template `profile.html`
-
 
 
 if __name__ == '__main__':

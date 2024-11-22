@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from app.models import TaiKhoan, NguoiDung, Admin, KhachHang, NhanVien
 from app import app, db
 import hashlib
@@ -7,37 +6,31 @@ import cloudinary.uploader
 
 
 def add_or_get_user_from_google(first_name, last_name, username, email):
-    # Kiểm tra nếu user đã tồn tại
     user = TaiKhoan.query.filter_by(ten_dang_nhap=username).first()
     if not user:
         try:
-
-            # Tạo đối tượng NguoiDung liên kết với tài khoản
-            # user = NguoiDung(fname=first_name, lname=last_name)
-            # # Sau đó, Tạo mới tài khoản người dùng nếu không tồn tại
-            # account = TaiKhoan(ten_dang_nhap=username, mat_khau="", trang_thai=True, nguoi_dung_id=user.id)
-            #
-            # db.session.add(user)
-            # db.session.add(account)
-            # db.session.commit()
-            # Nếu tài khoản không tồn tại, tạo mới người dùng và tài khoản
-            # user = NguoiDung(fname=first_name, lname=last_name, email=email)
-            # db.session.add(user)
-            # db.session.commit()
-
-            # Tạo tài khoản người dùng
-            user_account = TaiKhoan(ten_dang_nhap=username, mat_khau='')
+            # Tạo tài khoản người dùng mới
+            user_account = TaiKhoan(ten_dang_nhap=username, mat_khau='', trang_thai=True)
             db.session.add(user_account)
             db.session.commit()
 
-            # Thêm người dùng vào bảng KhachHang nếu cần
-            customer = KhachHang(fname=first_name, lname=last_name, email=email, tai_khoan_id=user_account.id)
+            # Thêm người dùng vào bảng KhachHang
+            customer = KhachHang(
+                fname=first_name,
+                lname=last_name,
+                email=email,
+                tai_khoan_id=user_account.id
+            )
             db.session.add(customer)
             db.session.commit()
+
+            # Gán lại `user` với tài khoản vừa tạo
+            user = user_account
         except Exception as ex:
             db.session.rollback()
             print(f"Error while adding user: {ex}")
             raise ex
+
     return user
 
 
@@ -75,8 +68,9 @@ def auth_user(username, password):
     return TaiKhoan.query.filter(TaiKhoan.ten_dang_nhap == username, TaiKhoan.mat_khau == password).first()
 
 
-def get_user_by_id(id):
-    return TaiKhoan.query.get(id)
+def get_user_by_id(user_id):
+    return db.session.query(TaiKhoan).join(NguoiDung, TaiKhoan.id == NguoiDung.tai_khoan_id) \
+        .filter(TaiKhoan.id == user_id).first()
 
 
 # Kiểm tra username có tồn tại không

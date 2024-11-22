@@ -31,11 +31,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
   });
 
-
   // Function to swap values between "Từ" and "Đến"
   window.swapValues = function () {
-        const fromInput = document.querySelector('input[placeholder="City or airport"][name="from"]');
-        const toInput = document.querySelector('input[placeholder="City or airport"][name="to"]');
+        const fromInput = document.querySelector('input[placeholder="City"][name="from"]');
+        const toInput = document.querySelector('input[placeholder="City"][name="to"]');
 
         if (fromInput && toInput) {
               // Swap the values
