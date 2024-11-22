@@ -21,17 +21,17 @@ def add_or_get_user_from_google(first_name, last_name, username, email):
             # db.session.add(account)
             # db.session.commit()
             # Nếu tài khoản không tồn tại, tạo mới người dùng và tài khoản
-            user = NguoiDung(fname=first_name, lname=last_name, email=email)
-            db.session.add(user)
-            db.session.commit()
-
-            # # Tạo tài khoản người dùng
-            # user_account = TaiKhoan(ten_dang_nhap=username, mat_khau='', nguoi_dung_id=user.id)
-            # db.session.add(user_account)
+            # user = NguoiDung(fname=first_name, lname=last_name, email=email)
+            # db.session.add(user)
             # db.session.commit()
 
+            # Tạo tài khoản người dùng
+            user_account = TaiKhoan(ten_dang_nhap=username, mat_khau='')
+            db.session.add(user_account)
+            db.session.commit()
+
             # Thêm người dùng vào bảng KhachHang nếu cần
-            customer = KhachHang(ten_dang_nhap=username, mat_khau='', nguoi_dung_id=user.id)
+            customer = KhachHang(fname=first_name, lname=last_name, email=email, tai_khoan_id=user_account.id)
             db.session.add(customer)
             db.session.commit()
         except Exception as ex:
@@ -46,18 +46,18 @@ def add_user(first_name, last_name, username, password, email, extra_info=None):
         # Mã hóa mật khẩu
         password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
-        # Tạo đối tượng NguoiDung
-        user = NguoiDung(fname=first_name, lname=last_name, email=email)
-        db.session.add(user)
-        db.session.commit()
-
-        # # Sau đó, Tạo tài khoản người dùng liên kết với người dùng
-        # account = TaiKhoan(ten_dang_nhap=username, mat_khau=password, nguoi_dung_id=user.id)
-        # db.session.add(account)
+        # # Tạo đối tượng NguoiDung
+        # user = NguoiDung(fname=first_name, lname=last_name, email=email)
+        # db.session.add(user)
         # db.session.commit()
 
+        # Sau đó, Tạo tài khoản người dùng liên kết với người dùng
+        account = TaiKhoan(ten_dang_nhap=username, mat_khau=password)
+        db.session.add(account)
+        db.session.commit()
+
         # Sau đó, tạo bảng KhachHang
-        customer = KhachHang(ten_dang_nhap=username, mat_khau=password, nguoi_dung_id=user.id)
+        customer = KhachHang(fname=first_name, lname=last_name, email=email, tai_khoan_id=account.id)
         db.session.add(customer)
         db.session.commit()
 

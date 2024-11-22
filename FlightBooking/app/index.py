@@ -44,6 +44,7 @@ def login_view():
     if request.method.__eq__('POST'):
         username = request.form.get('username')
         password = request.form.get('password')
+
         # Sử dụng hàm auth_user để xác thực
         user = dao.auth_user(username, password)
         if user:

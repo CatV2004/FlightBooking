@@ -45,23 +45,6 @@ class LoaiVe(RoleEnum):
     MOTCHIEU = 1
     KHUHOI = 2
 
-
-class NguoiDung(db.Model, UserMixin):
-    __tablename__ = 'NguoiDung'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    fname = Column(String(50), nullable=False)
-    lname = Column(String(50), nullable=False)
-    dia_chi = Column(String(200))
-    email = Column(String(100), nullable=False, unique=False)
-    so_dien_thoai = Column(String(15), nullable=True)
-    ngay_sinh = Column(Date)
-    so_CCCD = Column(String(12), unique=True, nullable=True)
-    tai_khoan = relationship("TaiKhoan", backref='NguoiDung', uselist=False)
-
-    def __str__(self):
-        return self.lname
-
-
 class TaiKhoan(db.Model, UserMixin):
     __tablename__ = 'TaiKhoan'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -69,8 +52,22 @@ class TaiKhoan(db.Model, UserMixin):
     mat_khau = Column(String(100), nullable=False)
     trang_thai = Column(db.Boolean, default=True)
     vai_tro = Column(Enum(VaiTro), default=VaiTro.USER, nullable=False)
-    nguoi_dung_id = Column(Integer, ForeignKey(NguoiDung.id), nullable=False)
+    nguoi_dung = relationship("NguoiDung", backref='TaiKhoan', uselist=False)
 
+class NguoiDung(db.Model, UserMixin):
+    __tablename__ = 'NguoiDung'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    fname = Column(String(50), nullable=False, unique=False)
+    lname = Column(String(50), nullable=False)
+    dia_chi = Column(String(200))
+    email = Column(String(100), nullable=False, unique=False)
+    so_dien_thoai = Column(String(15), nullable=True)
+    ngay_sinh = Column(Date)
+    so_CCCD = Column(String(12), unique=True, nullable=True)
+    tai_khoan_id = Column(Integer, ForeignKey(TaiKhoan.id), nullable=True)
+
+    def __str__(self):
+        return self.lname
 
 class Admin(TaiKhoan, UserMixin):
     __tablename__ = 'Admin'
@@ -83,7 +80,7 @@ class Admin(TaiKhoan, UserMixin):
     }
 
 
-class KhachHang(TaiKhoan, UserMixin):
+class KhachHang(NguoiDung, UserMixin):
     __tablename__ = 'KhachHang'
     id = Column(Integer, ForeignKey(TaiKhoan.id), primary_key=True)
     hang_thanh_vien = Column(Enum(HangThanhVien), default=HangThanhVien.BAC, nullable=False)
