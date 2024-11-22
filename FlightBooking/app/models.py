@@ -12,7 +12,7 @@ from sqlalchemy.testing import fails
 
 from app import db, app, db_sub
 import hashlib
-from enum import Enum as RoleEnum, UNIQUE
+from enum import Enum as RoleEnum
 from flask_login import UserMixin
 
 
