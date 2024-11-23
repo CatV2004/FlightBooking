@@ -7,7 +7,7 @@ import dao
 from app import app, login, google
 from flask_login import login_user, logout_user, current_user
 
-from app.models import TaiKhoan
+from app.models import TaiKhoan, VaiTro
 
 
 @app.route("/")
@@ -51,7 +51,12 @@ def login_view():
         user = dao.auth_user(username, password)
         if user:
             login_user(user=user)
-            return redirect('/')
+            if user.vai_tro == VaiTro.USER:
+                return redirect('/')
+            elif user.vai_tro == VaiTro.EMPLOYEE:
+                return redirect('/Employees/index.html')
+            else:
+                pass
         else:
             # Kiểm tra nếu tài khoản tồn tại
             if dao.is_username_exists(username):
