@@ -1,11 +1,11 @@
 import math
 
-from flask import render_template, request, redirect, jsonify, url_for, session
+from flask import render_template, request, redirect, jsonify, url_for, session, flash
 from numpy.f2py.symbolic import ewarn
-
+from datetime import datetime
 import dao
-from app import app, login, google
-from flask_login import login_user, logout_user, current_user
+from app import app, login, google, db
+from flask_login import login_user, login_required, logout_user, current_user
 
 from app.models import TaiKhoan
 
@@ -117,11 +117,86 @@ def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
 
-
 # Gọi page profile
 @app.route('/profile')
 def profile():
     return render_template('profile.html')  # Chỉ định template `profile.html`
+
+
+@app.route('/update-profile', methods=['POST'])
+@login_required
+def update_profile():
+    form_data = {
+        'lname': request.form.get('lname'),
+        'fname': request.form.get('fname'),
+        'ngay_sinh': request.form.get('ngay_sinh'),
+        'dia_chi': request.form.get('dia_chi'),
+        'so_CCCD': request.form.get('so_CCCD'),
+        'so_dien_thoai': request.form.get('so_dien_thoai'),
+        'email': request.form.get('email')
+    }
+
+
+    # Xác thực dữ liệu
+    valid, error_message = dao.validate_profile_data(form_data)
+    if not valid:
+        flash(error_message, 'danger')  # Flash thông báo lỗi
+        return redirect(url_for('profile'))
+
+    try:
+        ngay_sinh_date = datetime.strptime(form_data['ngay_sinh'], '%d/%m/%Y') if form_data['ngay_sinh'] else None
+        success = dao.update_user_profile(
+            user_id=current_user.id,
+            fname=form_data['fname'],
+            lname=form_data['lname'],
+            ngay_sinh=ngay_sinh_date,
+            dia_chi=form_data['dia_chi'],
+            so_CCCD=form_data['so_CCCD'],
+            so_dien_thoai=form_data['so_dien_thoai'],
+            email=form_data['email']
+        )
+        if success:
+            flash("Cập nhật thông tin thành công!", "success")
+        else:
+            flash("Cập nhật thất bại.", "danger")
+
+    except Exception as e:
+        flash(f"Có lỗi xảy ra: {e}", "danger")
+
+    return redirect(url_for('profile'))
+
+
+@app.route('/update-password', methods=['POST'])
+@login_required
+def update_password_route():
+    # Lấy thông tin từ form
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    # Kiểm tra mật khẩu hiện tại
+    if not dao.check_current_password(current_user, current_password):
+        flash("Mật khẩu hiện tại không đúng.", "danger")
+        return redirect(url_for('profile'))  # Redirect về trang profile sau khi lỗi
+
+    # Kiểm tra mật khẩu mới và xác nhận mật khẩu mới
+    if new_password != confirm_password:
+        flash("Mật khẩu mới và xác nhận mật khẩu không khớp.", "danger")
+        return redirect(url_for('profile'))  # Redirect về trang profile nếu có lỗi
+
+    # Kiểm tra độ dài mật khẩu mới (ví dụ tối thiểu 6 ký tự)
+    if len(new_password) < 6:
+        flash("Mật khẩu mới phải có ít nhất 6 ký tự.", "danger")
+        return redirect(url_for('profile'))  # Redirect về trang profile nếu có lỗi
+
+    # Cập nhật mật khẩu mới trong cơ sở dữ liệu
+    try:
+        dao.update_password(current_user, new_password)
+        flash("Cập nhật mật khẩu thành công!", "success")
+    except Exception as e:
+        flash(f"Có lỗi xảy ra: {e}", "danger")
+
+    return redirect(url_for('profile'))  # Redirect về trang profile sau khi thành công
 
 
 if __name__ == '__main__':
