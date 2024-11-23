@@ -510,7 +510,8 @@ footer .glyphicon {
 }
 
 input[readonly] {
-        background-color: #f5f5f5; /* Màu nền nhạt */
-        border-color: #ddd;       /* Màu viền nhạt */
-        color: #aaa;             /* Màu chữ nhạt */
-        cursor: not-allowed;     /* Thay đổi con trỏ thành không cho phép */
+    background-color: #f5f5f5; /* Màu nền nhạt */
+    border-color: #ddd; /* Màu viền nhạt */
+    color: #aaa; /* Màu chữ nhạt */
+    cursor: not-allowed; /* Thay đổi con trỏ thành không cho phép */
+}

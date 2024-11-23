@@ -4,19 +4,29 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-center " id="mynavbar">
+        <div class="collapse navbar-collapse justify-content-center" id="mynavbar">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Trang chủ</a>
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            Thao tác vé
+                        </a>
+                        <ul class="dropdown-menu custom-dropdown">
+                            <li><a class="dropdown-item" href="BanVe">Bán vé</a></li>
+                            <li><a class="dropdown-item" href="DoiVe">Đổi vé</a></li>
+                            <li><a class="dropdown-item" href="HuyVe">Hủy vé</a></li>
+                            <li><a class="dropdown-item" href="XuatVe">Xuất vé</a></li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#about">Giới thiệu</a>
+                    <a class="nav-link" href="laplich">Lập lịch</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Khuyến mãi</a>
+                    <a class="nav-link" href="DoiVe">Đổi vé</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#contact">Liên hệ</a>
+                    <a class="nav-link" href="#contact">Tra cứu chyến bay</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto d-flex align-items-center fl">

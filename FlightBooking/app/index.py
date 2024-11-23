@@ -54,7 +54,7 @@ def login_view():
             if user.vai_tro == VaiTro.USER:
                 return redirect('/')
             elif user.vai_tro == VaiTro.EMPLOYEE:
-                return redirect('/Employees/index.html')
+                return render_template('Employees/index.html')
             else:
                 pass
         else:
