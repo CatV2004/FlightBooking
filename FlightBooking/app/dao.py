@@ -76,6 +76,3 @@ def get_user_by_id(user_id):
 # Kiểm tra username có tồn tại không
 def is_username_exists(username):
     return TaiKhoan.query.filter(TaiKhoan.ten_dang_nhap == username).first() is not None
-
-
-

@@ -69,6 +69,14 @@ class TaiKhoan(db.Model, UserMixin):
     def so_CCCD(self):
         return self.nguoi_dung.so_CCCD if self.nguoi_dung else None
 
+    @property
+    def email(self):
+        return self.nguoi_dung.email if self.nguoi_dung else None
+
+    @property
+    def so_dien_thoai(self):
+        return self.nguoi_dung.so_dien_thoai if self.nguoi_dung else None
+
 
 
 class NguoiDung(db.Model, UserMixin):
