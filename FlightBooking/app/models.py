@@ -221,6 +221,7 @@ class LichBay(db.Model):
 class SanBay(db.Model):
     __tablename__ = 'SanBay'
     ma_san_bay = Column(String(10), primary_key=True)
+    ten_san_bay = Column(String(50), nullable=False)
     dia_diem = Column(String(50), nullable=False)
 
     # # Các tuyến bay liên kết với sân bay này
