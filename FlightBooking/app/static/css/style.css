@@ -66,6 +66,110 @@ a.navbar-brand {
 
 
 /* Container */
+
+/* Basic container for the dropdown */
+.dropdown-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Styling for the input and icon */
+.dropdown-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.dropdown-content svg {
+    margin-right: 8px;
+    color: #ffffff;
+}
+
+.dropdown-content input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    color: rgba(3,18,26,1.00);
+}
+
+/* Style for the dropdown options list */
+.dropdown-list {
+    color: white;
+    position: absolute;
+    top: 100%;
+    left: 50px;
+    right: 10px;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    background-color: rgb(0 0 0 / 76%);
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 4px;
+}
+.dropdown-list.show {
+    display: block; /* Hiển thị dropdown */
+}
+
+/* When input is focused or has a value, show the options */
+.dropdown-content input:focus + .dropdown-list,
+.dropdown-content input:not(:empty) + .dropdown-list {
+    display: flex;
+}
+
+/* Style each option inside the dropdown */
+.dropdown-list .dropdown-option {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-list .dropdown-option:hover {
+    background-color: rgb(255 255 255 / 35%);
+}
+
+/* Button styling */
+.btn-outline-primary {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Adjust the size of the decrease button */
+#decreaseBtn, #increaseBtn  {
+    width: 30px; /* Make the button smaller */
+    height: 30px; /* Ensure the button remains square */
+    font-size: 1.25rem; /* Adjust the font size for the "-" symbol */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+#btnSearch {
+        transition: all 0.3s ease-in-out;
+    }
+/* Hover effect for both buttons */
+#decreaseBtn:hover, #increaseBtn:hover {
+    color: #f4511e;
+    border: 1px solid #f4511e;
+}
+
+
+
+
 .section {
     position: relative;
     height: 90vh;
@@ -99,8 +203,17 @@ a.navbar-brand {
 #booking {
     font-family: 'PT Sans', sans-serif;
     background-image: url('https://res.cloudinary.com/dohsfqs6d/image/upload/v1731592129/kdnfdlvdhvff5teh8frg.jpg');
-    background-size: cover;
-    background-position: center;
+    position: absolute; /* Định vị tương đối với viewport */
+    left: 0; /* Đặt cạnh trái sát với màn hình */
+    right: 0; /* Đặt cạnh phải sát với màn hình */
+    height: 92%; /* Hoặc giá trị cụ thể nếu cần */
+    margin-left: auto; /* Căn giữa */
+    margin-right: auto; /* Căn giữa */
+    background-size: cover; /* Giúp ảnh nền phủ kín */
+    background-position: center; /* Căn giữa hình nền */
+    display: flex; /* Dùng flexbox để căn giữa nội dung bên trong */
+    justify-content: center; /* Căn giữa nội dung theo chiều ngang */
+    align-items: center; /* Căn giữa nội dung theo chiều dọc */
 }
 
 .booking-form {
