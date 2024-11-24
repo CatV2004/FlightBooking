@@ -131,6 +131,7 @@ def profile():
 @app.route('/update-profile', methods=['POST'])
 @login_required
 def update_profile():
+    # Lấy dữ liệu từ form
     form_data = {
         'lname': request.form.get('lname'),
         'fname': request.form.get('fname'),
@@ -141,15 +142,18 @@ def update_profile():
         'email': request.form.get('email')
     }
 
-
     # Xác thực dữ liệu
     valid, error_message = dao.validate_profile_data(form_data)
     if not valid:
-        flash(error_message, 'danger')  # Flash thông báo lỗi
+        flash(error_message, 'danger')
         return redirect(url_for('profile'))
 
     try:
-        ngay_sinh_date = datetime.strptime(form_data['ngay_sinh'], '%d/%m/%Y') if form_data['ngay_sinh'] else None
+        # Chuyển ngày sinh về kiểu `datetime.date`
+        ngay_sinh_date = datetime.strptime(form_data['ngay_sinh'], '%d/%m/%Y').date() if form_data[
+            'ngay_sinh'] else None
+
+        # Gọi DAO để cập nhật thông tin
         success = dao.update_user_profile(
             user_id=current_user.id,
             fname=form_data['fname'],
@@ -160,11 +164,11 @@ def update_profile():
             so_dien_thoai=form_data['so_dien_thoai'],
             email=form_data['email']
         )
+
         if success:
             flash("Cập nhật thông tin thành công!", "success")
         else:
-            flash("Cập nhật thất bại.", "danger")
-
+            flash("Cập nhật thất bại. Người dùng không tồn tại.", "danger")
     except Exception as e:
         flash(f"Có lỗi xảy ra: {e}", "danger")
 
