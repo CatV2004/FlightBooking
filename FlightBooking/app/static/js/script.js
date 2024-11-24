@@ -45,17 +45,44 @@ document.addEventListener('DOMContentLoaded', function () {
               console.error('Cannot find input fields for "Từ" and "Đến".');
         }
   };
-  // Toggle visibility of return date based on checkbox state
-        const roundTripToggle = document.getElementById('roundTripToggle');
-        const returnDate = document.getElementById('returnDate');
 
-        roundTripToggle.addEventListener('change', function () {
-                if (this.checked) {
-                        returnDate.disabled = false; // Enable return date input
-                } else {
-                        returnDate.disabled = true; // Disable return date input
-                        returnDate.value = ''; // Clear value if unchecked
-                }
-        });
+  // Toggle visibility of return date based on checkbox state
+    const roundTripToggle = document.getElementById('roundTripToggle');
+    const returnDate = document.getElementById('returnDate');
+
+    roundTripToggle.addEventListener('change', function () {
+            if (this.checked) {
+                    returnDate.disabled = false; // Enable return date input
+            } else {
+                    returnDate.disabled = true; // Disable return date input
+                    returnDate.value = ''; // Clear value if unchecked
+            }
+    });
+
+
+     // Tăng/giảm số lượng vé
+    const increaseBtn = document.getElementById("increaseBtn");
+    const decreaseBtn = document.getElementById("decreaseBtn");
+    const quantityInput = document.getElementById("ticketQuantity");
+    function increaseQuantity() {
+        const quantityInput = document.getElementById("ticketQuantity");
+        let currentValue = parseInt(quantityInput.value);
+        quantityInput.value = currentValue + 1;
+    }
+
+    function decreaseQuantity() {
+        const quantityInput = document.getElementById("ticketQuantity");
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > 1) { // Không giảm xuống dưới 1
+            quantityInput.value = currentValue - 1;
+        }
+    }
+    // Gắn sự kiện click cho nút tăng và giảm
+    if (increaseBtn && decreaseBtn && quantityInput) {
+        increaseBtn.addEventListener("click", increaseQuantity);
+        decreaseBtn.addEventListener("click", decreaseQuantity);
+    } else {
+        console.error("Cannot find increase, decrease buttons or quantity input.");
+    }
 });
 
