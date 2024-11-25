@@ -149,3 +149,5 @@ def update_password(user, new_password):
         db.session.rollback()
         print(f"Error updating password: {ex}")
         raise ex
+
+

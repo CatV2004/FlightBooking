@@ -7,7 +7,7 @@ import dao
 from app import app, login, google, db
 from flask_login import login_user, login_required, logout_user, current_user
 
-from app.models import TaiKhoan, VaiTro
+from app.models import TaiKhoan, VaiTro, SanBay
 
 
 @app.route("/")
@@ -54,7 +54,7 @@ def login_view():
             if user.vai_tro == VaiTro.USER:
                 return redirect('/')
             elif user.vai_tro == VaiTro.EMPLOYEE:
-                return redirect('/Employees/index.html')
+                return render_template('Employees/index.html')
             else:
                 pass
         else:
@@ -206,6 +206,20 @@ def update_password_route():
         flash(f"Có lỗi xảy ra: {e}", "danger")
 
     return redirect(url_for('profile'))  # Redirect về trang profile sau khi thành công
+
+#Tạo API để lấy danh sách sân bay dưới dạng JSON
+@app.route('/api/sanbay', methods=['GET'])
+def api_san_bay():
+    danh_sach_san_bay = SanBay.query.all()
+    data = [
+        {
+            "ma_san_bay": sb.ma_san_bay,
+            "ten_san_bay": sb.ten_san_bay,
+            "dia_diem": sb.dia_diem
+        }
+        for sb in danh_sach_san_bay
+    ]
+    return jsonify(data)
 
 
 if __name__ == '__main__':
