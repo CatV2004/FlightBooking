@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Đặt data vào dropdown
             data.forEach(sanBay => {
-                const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem})`;
+                const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
 
                 // Tạo option cho dropdown "Sân bay đi"
                 const fromOption = document.createElement('div');
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Lọc danh sách sân bay theo từ khóa tìm kiếm
         const filteredAirports = window.airports.filter(sanBay => {
-            const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem})`;
+            const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
             return displayText.toLowerCase().includes(searchTerm);
         });
 
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Thêm các sân bay đã lọc vào dropdown
         filteredAirports.forEach(sanBay => {
-            const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem})`;
+            const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
 
             const option = document.createElement('div');
             option.classList.add('dropdown-option');
@@ -220,8 +220,44 @@ document.addEventListener('DOMContentLoaded', function () {
         filterAirports('to', 'from');
     });
 
+    // Hàm tách mã sân bay từ chuỗi
+    function extractAirportCode(inputValue) {
+        const parts = inputValue.split(" - "); // Tách chuỗi dựa trên " - "
+        return parts.length > 1 ? parts[1] : ""; // Nếu có mã sân bay, trả về mã; nếu không, trả về chuỗi rỗng
+    }
 
+    function submitAirportCodes() {
+        // Lấy giá trị từ các input
+        const fromInput = document.getElementById("from").value.trim();
+        const toInput = document.getElementById("to").value.trim();
 
+        // Tách mã sân bay từ chuỗi hiển thị (dựa vào dấu '-')
+        const fromCode = extractAirportCode(fromInput);
+        const toCode = extractAirportCode(toInput);
+
+        if (fromCode && toCode) {
+            // Gửi dữ liệu đến Flask backend
+            fetch("/customer/search-flights", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ from: fromCode, to: toCode }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Server response:", data); // Xử lý phản hồi từ server
+                    if (data.error) {
+                        alert(data.error); // Hiển thị lỗi nếu có
+                    } else {
+                        alert(`Tìm chuyến bay từ ${data.from} đến ${data.to}`);
+                    }
+                })
+                .catch((error) => console.error("Error:", error));
+        } else {
+            alert("Vui lòng nhập cả mã sân bay đi và đến đúng định dạng.");
+        }
+    }
 
 });
 
