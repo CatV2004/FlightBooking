@@ -1,4 +1,5 @@
 import math
+from Customer.customer_index import customer_bp  # Import Blueprint từ customer_index
 
 from flask import render_template, request, redirect, jsonify, url_for, session, flash
 from numpy.f2py.symbolic import ewarn
@@ -221,6 +222,9 @@ def api_san_bay():
     ]
     return jsonify(data)
 
+
+# Đăng ký Blueprint cho customer
+app.register_blueprint(customer_bp, url_prefix="/customer")
 
 if __name__ == '__main__':
     app.run(debug=True)
