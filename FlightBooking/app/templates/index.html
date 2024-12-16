@@ -2,77 +2,35 @@
 
 {% block content %}
 <body>
-<div id="booking" class="section ">
+<div id="booking" class="section full-width">
     <div class="section-center">
         <div class="container">
             <div class="row">
                 <div class="booking-form">
                     <form class="px-5">
                         <div aria-level="1" class="container-fluid text-white text-center pt-3 pb-5">
-                            <h4 class="display-6 fw-bold">Từ Đông Nam Á Đến Vũ Trụ, Trong Tầm Tay Bạn</h4>
+                            <h4 class="display-6 fw-bold">Từ Đông Nam Á Đến Thế Giới, Trong Tầm Tay Bạn</h4>
                         </div>
 
                         <div class="row d-flex align-items-center">
-                            <!-- Autocomplete "Từ" -->
                             <div class="col-md-5">
                                 <div class="form-group">
-                                    <label for="from" class="form-label">Sân bay đi</label>
-                                    <div class="dropdown-container">
-                                        <div class="dropdown-content">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                                 xmlns="http://www.w3.org/2000/svg" data-id="IcFlightTakeOff">
-                                                <path d="M3 21H21" stroke="#03121A" stroke-width="2"
-                                                      stroke-linecap="round" stroke-linejoin="round"></path>
-                                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                                      d="M12 9L15.1924 7.93585C17.317 7.22767 19.6563 7.95843 21 9.75L7.44513 14.0629C5.86627 14.5653 4.1791 13.6926 3.67674 12.1137C3.66772 12.0854 3.65912 12.0569 3.65094 12.0283L3 9.75L5.25 10.875L9 9.75L4.5 3H5.25L12 9Z"
-                                                      stroke="#687176" stroke-width="2" stroke-linecap="round"
-                                                      stroke-linejoin="round"></path>
-                                            </svg>
-                                            <input class="form-control" id="from" name="from" list="from-options"
-                                                   placeholder="Nhập sân bay đi" oninput="filterAirports('from', 'to')"
-                                                   required>
-                                        </div>
-                                        <div class="dropdown-list" id="from-options" style="display: none;">
-                                            <!-- Options will be populated dynamically via JavaScript -->
-                                        </div>
-                                    </div>
+                                    <span class="form-label">Từ</span>
+                                    <input class="form-control" type="text" placeholder="City" name="from" required>
                                 </div>
                             </div>
-
-                            <!-- Button to swap values -->
                             <div class="col-md-2 text-center">
-                                <button type="button" class="btn btn-outline-primary" onclick="swapValues()">
-                                    <i class="bi bi-arrow-left-right fs-4"></i>
+                                <button type="button" class="btn    " onclick="swapValues()">
+                                    <i class="bi bi-arrow-left-right text-primary fs-4"></i>
                                 </button>
                             </div>
-
-                            <!-- Autocomplete "Đến" -->
                             <div class="col-md-5">
                                 <div class="form-group">
-                                    <label for="to" class="form-label">Sân bay đến</label>
-                                    <div class="dropdown-container">
-                                        <div class="dropdown-content">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                                 xmlns="http://www.w3.org/2000/svg" data-id="IcFlightTakeOff">
-                                                <path d="M3 21H21" stroke="#03121A" stroke-width="2"
-                                                      stroke-linecap="round" stroke-linejoin="round"></path>
-                                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                                      d="M12 9L15.1924 7.93585C17.317 7.22767 19.6563 7.95843 21 9.75L7.44513 14.0629C5.86627 14.5653 4.1791 13.6926 3.67674 12.1137C3.66772 12.0854 3.65912 12.0569 3.65094 12.0283L3 9.75L5.25 10.875L9 9.75L4.5 3H5.25L12 9Z"
-                                                      stroke="#687176" stroke-width="2" stroke-linecap="round"
-                                                      stroke-linejoin="round"></path>
-                                            </svg>
-                                            <input class="form-control" id="to" name="to" list="to-options"
-                                                   placeholder="Nhập sân bay đến" oninput="filterAirports('to', 'from')"
-                                                   required>
-                                        </div>
-                                        <div class="dropdown-list" id="to-options" style="display: none;">
-                                            <!-- Options will be populated dynamically via JavaScript -->
-                                        </div>
-                                    </div>
+                                    <span class="form-label">Đến</span>
+                                    <input class="form-control" type="text" placeholder="City" name="to" required>
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="row">
                             <div class="col-md-3 mt-3">
@@ -109,15 +67,10 @@
                                 <div class="form-group text-center">
                                     <span class="form-label">Số lượng vé</span>
                                     <div class="input-group d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-outline-primary rounded" type="button" id="decreaseBtn">
-                                            -
-                                        </button>
-                                        <input id="ticketQuantity" type="text" class="form-control text-center mx-2"
-                                               value="1"
+                                        <button class="btn btn-outline-primary rounded" type="button">-</button>
+                                        <input type="text" class="form-control text-center mx-2" value="1"
                                                style="width: 50px; border-radius: 30px !important;" readonly>
-                                        <button class="btn btn-outline-primary rounded" type="button" id="increaseBtn">
-                                            +
-                                        </button>
+                                        <button class="btn btn-outline-primary rounded" type="button">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -125,10 +78,8 @@
                             <div class="col-md-2 mt-3">
                                 <div class="form-btn">
                                     <button class="btn btn-lg d-flex align-items-center justify-content-center"
-                                            id="btnSearch"
-                                            onclick="submitAirportCodes()"
-                                            style="width: 150px; height: 53px; border-radius: 16px; border: 1px solid #e7e7e7; color: #e7e7e7">
-                                        Tìm kiếm
+                                            style="width: 53px; height: 53px; background-color: rgb(255, 94, 31); border-radius: 16px; border: 3px solid #a88383;">
+                                        <i class="fas fa-search text-white"></i>
                                     </button>
                                 </div>
                             </div>

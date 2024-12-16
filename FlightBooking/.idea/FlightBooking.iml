@@ -4,11 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
     </content>
-<<<<<<< HEAD
     <orderEntry type="jdk" jdkName="Python 3.10 (FlightBooking)" jdkType="Python SDK" />
-=======
-    <orderEntry type="jdk" jdkName="Python 3.12 (FlightBooking) (3)" jdkType="Python SDK" />
->>>>>>> 536de89134210bc4b6c5ebd9d2b04c5279f60f6f
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

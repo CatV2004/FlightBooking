@@ -3,8 +3,7 @@ from multiprocessing.reduction import duplicate
 
 from cloudinary.utils import unique
 from pycparser import CParser
-from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, Enum, Date, column, nullsfirst, DateTime, \
-    Index, PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, Enum, Date, column, nullsfirst, DateTime
 from datetime import date, time, datetime  # Import đúng kiểu datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -45,7 +44,6 @@ class LoaiVe(RoleEnum):
     KHUHOI = 2
 
 
-<<<<<<< HEAD
 
 class NguoiDung(db.Model, UserMixin):
     __tablename__ = 'NguoiDung'
@@ -64,8 +62,6 @@ class NguoiDung(db.Model, UserMixin):
         return self.lname
 
 
-=======
->>>>>>> 536de89134210bc4b6c5ebd9d2b04c5279f60f6f
 class TaiKhoan(db.Model, UserMixin):
     __tablename__ = 'TaiKhoan'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -103,24 +99,6 @@ class TaiKhoan(db.Model, UserMixin):
     def get_id(self):
         return str(self.id)
 
-<<<<<<< HEAD
-=======
-class NguoiDung(db.Model, UserMixin):
-    __tablename__ = 'NguoiDung'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    fname = Column(String(50), nullable=False, unique=False)
-    lname = Column(String(50), nullable=False)
-    dia_chi = Column(String(200))
-    email = Column(String(100), nullable=False, unique=False)
-    so_dien_thoai = Column(String(15), nullable=True)
-    ngay_sinh = Column(Date)
-    so_CCCD = Column(String(12), unique=True, nullable=True)
-    tai_khoan_id = Column(Integer, ForeignKey(TaiKhoan.id), nullable=True)
-
-    def __str__(self):
-        return self.lname
-
->>>>>>> 536de89134210bc4b6c5ebd9d2b04c5279f60f6f
 
 class Admin(NguoiDung, UserMixin):
     __tablename__ = 'Admin'
@@ -189,7 +167,6 @@ class HanhLy(db.Model):
     ve = relationship("Ve", backref='HanhLy', uselist=False)
 
 
-
 class KhuyenMai(db.Model):
     __tablename__ = 'KhuyenMai'
     ma_KM = Column(String(10), primary_key=True)
@@ -214,10 +191,7 @@ class Ghe(db.Model):
     ma_ghe = Column(String(10), primary_key=True)
     hang_ve = Column(Enum(HangVe), default=HangVe.PHOTHONG, nullable=False)
     vi_tri = Column(String(10), nullable=False)
-<<<<<<< HEAD
     trang_thai = Column(Boolean, default=False, nullable=False)
-=======
->>>>>>> 536de89134210bc4b6c5ebd9d2b04c5279f60f6f
     may_bay = Column(String(10), ForeignKey(MayBay.so_hieu_mb), nullable=False)
 
     ve = relationship('Ve', backref='Ghe')
@@ -251,8 +225,8 @@ class Ve(db.Model):
     ma_HL = Column(String(10), ForeignKey(HanhLy.ma_HL), nullable=True)
     gia_ve = Column(Float, nullable=False)
     chi_tiet_cb = relationship('ChiTietChuyenBay', backref='Ve')
-
     ghe = Column(String(10), ForeignKey(Ghe.ma_ghe), nullable=False)
+
 
 class LichBay(db.Model):
     __tablename__ = 'LichBay'
@@ -373,6 +347,6 @@ class ThanhToan(db.Model):
 if __name__ == '__main__':
     with app.app_context():
         # Xóa tất cả dữ liệu trong cơ sở dữ liệu
-        # db.drop_all()
+        db.drop_all()
         # Tái tạo các bảng nếu cần
         db.create_all()

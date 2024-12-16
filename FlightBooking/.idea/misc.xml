@@ -3,9 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (FlightBooking)" />
   </component>
-<<<<<<< HEAD
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (FlightBooking)" project-jdk-type="Python SDK" />
-=======
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (FlightBooking) (3)" project-jdk-type="Python SDK" />
->>>>>>> 536de89134210bc4b6c5ebd9d2b04c5279f60f6f
 </project>
