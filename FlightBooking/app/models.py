@@ -1,5 +1,7 @@
+import string
 from datetime import timedelta
 from multiprocessing.reduction import duplicate
+from random import random
 
 from cloudinary.utils import unique
 from pycparser import CParser
@@ -12,7 +14,6 @@ from app import db, app, db_sub
 import hashlib
 from enum import Enum as RoleEnum
 from flask_login import UserMixin
-
 
 # # Database subdb
 # class CategoryPage(db_sub.Model):
@@ -38,11 +39,39 @@ class HangVe(RoleEnum):
     PHOTHONG = 1
     THUONGGIA = 2
 
+    @classmethod
+    def from_value(cls, value):
+        try:
+            return cls(value).name  # Trả về tên từ giá trị
+        except ValueError:
+            return None
+
 
 class LoaiVe(RoleEnum):
     MOTCHIEU = 1
     KHUHOI = 2
 
+# Hàm tạo mã tự động cho các đối tượng
+def generate_code(prefix, length=10):
+    # Tạo một mã ngẫu nhiên gồm chữ và số
+    return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+class NguoiDung(db.Model, UserMixin):
+    __tablename__ = 'NguoiDung'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    fname = Column(String(50), nullable=False, unique=False)
+    lname = Column(String(50), nullable=False)
+    dia_chi = Column(String(200))
+    email = Column(String(100), nullable=False, unique=False)
+    so_dien_thoai = Column(String(15), nullable=True)
+    ngay_sinh = Column(Date)
+    so_CCCD = Column(String(12), unique=True, nullable=True)
+    tai_khoan = relationship("TaiKhoan", backref='NguoiDung', uselist=False)
+
+    ve = relationship("Ve", backref='NguoiDung')
+
+    def __str__(self):
+        return self.lname
 
 
 class NguoiDung(db.Model, UserMixin):
@@ -106,6 +135,7 @@ class Admin(NguoiDung, UserMixin):
     ngay_vao_lam = Column(Date)
     kinh_nghiem = Column(String(200))
 
+
     __mapper_args__ = {
         'inherit_condition': id == NguoiDung.id
     }
@@ -116,6 +146,7 @@ class KhachHang(NguoiDung, UserMixin):
     id = Column(Integer, ForeignKey(NguoiDung.id), primary_key=True)
     hang_thanh_vien = Column(Enum(HangThanhVien), default=HangThanhVien.BAC, nullable=False)
     don_hang = relationship('DonHang', backref='KhachHang')
+
 
     __mapper_args__ = {
         'inherit_condition': id == NguoiDung.id
@@ -129,6 +160,7 @@ class NhanVien(NguoiDung, UserMixin):
     ngay_vao_lam = Column(Date, nullable=False)
     ghi_chu = Column(String(200))
     don_hang = relationship('DonHang', backref='NhanVien')
+
 
     __mapper_args__ = {
         'inherit_condition': id == NguoiDung.id
@@ -144,7 +176,6 @@ class HangMayBay(db.Model):
 
     def __str__(self):
         return self.ten_hang
-
 
 class MayBay(db.Model):
     __tablename__ = 'MayBay'
@@ -169,12 +200,12 @@ class HanhLy(db.Model):
 
 class KhuyenMai(db.Model):
     __tablename__ = 'KhuyenMai'
-    ma_KM = Column(String(10), primary_key=True)
+    ma_KM = Column(String(10), primary_key=True, default=lambda: generate_code('KM'))
     mo_ta = Column(String(50), nullable=True)
     ty_le_giam = Column(Float, nullable=False)
     ngay_bat_dau = Column(Date, nullable=False)
     ngay_ket_thuc = Column(Date, nullable=False)
-    ve = relationship('Ve', backref='KhuyenMai')
+    don_hang = relationship('DonHang', backref='KhuyenMai')
     dieu_kien_KM = relationship('DieuKienKM', backref='KhuyenMai')
 
 
@@ -193,38 +224,57 @@ class Ghe(db.Model):
     vi_tri = Column(String(10), nullable=False)
     trang_thai = Column(Boolean, default=False, nullable=False)
     may_bay = Column(String(10), ForeignKey(MayBay.so_hieu_mb), nullable=False)
+    gia_ghe = Column(Float, nullable=False)
+    trang_thai = Column(Boolean, default=False, nullable=False)
 
     ve = relationship('Ve', backref='Ghe')
 
+<<<<<<< HEAD
     def __init__(self, ma_ghe, hang_ve, vi_tri, trang_thai, may_bay):
+=======
+    def __init__(self, ma_ghe, hang_ve, vi_tri, trang_thai, may_bay, gia_ghe):
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
         self.ma_ghe = ma_ghe
         self.hang_ve = hang_ve
         self.vi_tri = vi_tri
         self.trang_thai = trang_thai
         self.may_bay = may_bay
+<<<<<<< HEAD
 
+=======
+        self.gia_ghe=gia_ghe
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 class DonHang(db.Model):
     __tablename__ = 'DonHang'
-    ma_DH = Column(String(10), primary_key=True)
+    ma_DH = Column(String(10), primary_key=True, default=lambda: generate_code('DH'))
     khach_hang = Column(Integer, ForeignKey(KhachHang.id), nullable=False)
     nhan_vien = Column(Integer, ForeignKey(NhanVien.id), nullable=True)
     ngay_dat_DH = Column(DateTime, nullable=False, default=func.now())
-    ve = relationship('Ve', backref='DonHang')
+    ma_KM = Column(String(10), ForeignKey(KhuyenMai.ma_KM), nullable=True)
     thanh_toan = relationship('ThanhToan', backref='DonHang')
+    ve = relationship('Ve', backref='DonHang')
 
 
 class Ve(db.Model):
     __tablename__ = 'Ve'
-    ma_ve = Column(String(10), primary_key=True)
+    ma_ve = Column(String(10), primary_key=True, default=lambda: generate_code('VE'))
     ma_don_hang = Column(String(10), ForeignKey(DonHang.ma_DH), nullable=False)
+<<<<<<< HEAD
     nguoi_so_huu = Column(Integer, ForeignKey(NguoiDung.id), nullable=False)
+=======
+    nguoi_so_huu = Column(String(10), ForeignKey(NguoiDung.id), nullable=False)
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
     ngay_xuat_ve = Column(DateTime, nullable=True)
     loai_ve = Column(Enum(LoaiVe), default=LoaiVe.MOTCHIEU, nullable=False)
-    ma_KM = Column(String(10), ForeignKey(KhuyenMai.ma_KM), nullable=True)
     ma_HL = Column(String(10), ForeignKey(HanhLy.ma_HL), nullable=True)
     gia_ve = Column(Float, nullable=False)
+<<<<<<< HEAD
     chi_tiet_cb = relationship('ChiTietChuyenBay', backref='Ve')
+=======
+    chi_tiet_cb = relationship('ChiTietVe', backref='Ve')
+
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
     ghe = Column(String(10), ForeignKey(Ghe.ma_ghe), nullable=False)
 
 
@@ -241,7 +291,10 @@ class KhuVuc(db.Model):
     ten_khu_vuc = Column(String(50), nullable=False)
     san_bay = relationship('SanBay', backref='KhuVuc')
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 class SanBay(db.Model):
     __tablename__ = 'SanBay'
     ma_san_bay = Column(String(10), primary_key=True)
@@ -276,7 +329,10 @@ class TuyenBay(db.Model):
         self.ma_tuyen_bay = ma_tuyen_bay
         self.san_bay_den = san_bay_den
         self.san_bay_di = san_bay_di
+<<<<<<< HEAD
 
+=======
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 class SanBayTrungGian(db.Model):
     __tablename__ = 'SanBayTrungGian'
@@ -311,9 +367,9 @@ class ChuyenBay(db.Model):
     may_bay = Column(String(10), ForeignKey(MayBay.so_hieu_mb), nullable=False)
     tuyen_bay = Column(String(10), ForeignKey(TuyenBay.ma_tuyen_bay), nullable=False)
     lich_bay = Column(String(10), ForeignKey(LichBay.ma_LB), nullable=False)
-    gia_chuyen_bay = Column(Float, nullable=False)
     thoi_gian_di = Column(DateTime, nullable=False)
     thoi_gian_den = Column(DateTime, nullable=False)
+<<<<<<< HEAD
 
     chi_tiet_cb = relationship('ChiTietChuyenBay', backref='ChuyenBay')
     san_bay_trung_gian = relationship('SanBayTrungGian', back_populates='chuyen_bay',
@@ -327,10 +383,23 @@ class ChuyenBay(db.Model):
         self.gia_chuyen_bay = gia_chuyen_bay
         self.thoi_gian_di = thoi_gian_di
         self.thoi_gian_den = thoi_gian_den
+=======
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
+    chi_tiet_cb = relationship('ChiTietVe', backref='ChuyenBay')
+    san_bay_trung_gian = relationship('SanBayTrungGian', back_populates='chuyen_bay', cascade='all, delete-orphan')  # Thiết lập quan hệ
 
-class ChiTietChuyenBay(db.Model):
-    __tablename__ = 'ChiTietChuyenBay'
+    def __init__(self, ma_chuyen_bay, may_bay, tuyen_bay, lich_bay, gia_chuyen_bay, thoi_gian_di, thoi_gian_den):
+        self.ma_chuyen_bay = ma_chuyen_bay
+        self.may_bay = may_bay
+        self.tuyen_bay = tuyen_bay
+        self.lich_bay = lich_bay
+        self.gia_chuyen_bay = gia_chuyen_bay
+        self.thoi_gian_di = thoi_gian_di
+        self.thoi_gian_den = thoi_gian_den
+
+class ChiTietVe(db.Model):
+    __tablename__ = 'ChiTietVe'
     ma_chuyen_bay = Column(String(10), ForeignKey(ChuyenBay.ma_chuyen_bay), primary_key=True)
     ma_ve = Column(String(10), ForeignKey(Ve.ma_ve), primary_key=True)
 

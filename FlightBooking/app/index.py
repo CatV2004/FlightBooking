@@ -1,7 +1,10 @@
 import math
+<<<<<<< HEAD
 #from crypt import methods
 
 from passlib.hash import md5_crypt as md5
+=======
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 from flask import render_template, request, redirect, jsonify, url_for, session, flash
 from numpy.f2py.symbolic import ewarn
@@ -10,12 +13,23 @@ import dao
 from app import app, login, google, db
 from flask_login import login_user, login_required, logout_user, current_user
 from app.models import TaiKhoan, VaiTro, SanBay
+from app.Customer.customer_index import customer_bp
 
 
-@app.route("/")
+# Đăng ký Blueprint cho module Customer
+app.register_blueprint(customer_bp, url_prefix='/customer')
+
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template('index.html')
+    # Kiểm tra nếu session có dữ liệu chuyến bay, và nếu đúng là trang chủ thì xóa đi
+    if 'outbound_flight' in session or 'return_flight' in session or 'passengers' in session:
+        session.pop('outbound_flight', None)  # Xóa chuyến bay đi
+        session.pop('return_flight', None)  # Xóa chuyến bay về
+        session.pop('passengers', None)  # Xóa danh sách hành khách
+        print("Toàn bộ dữ lệu đã được reset")
 
+    return render_template('index.html')
 
 @app.route("/register", methods=['get', 'post'])
 def register_view():
@@ -33,8 +47,13 @@ def register_view():
         elif not password.__eq__(confirm):
             err_msg = 'Mật khẩu không khớp!'
         else:
-            data = request.form.copy()
-            del data['confirm']
+            data = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'username': username,
+                'password': password,
+                'email': email
+            }
             dao.add_user(**data)
 
             return redirect('/login')
@@ -45,6 +64,7 @@ def register_view():
 @app.route("/login", methods=['get', 'post'])
 def login_view():
     err_msg = ''
+    next_url = request.form.get('next', request.args.get('next'))
     if request.method.__eq__('POST'):
         username = request.form.get('username')
         password = request.form.get('password')
@@ -52,12 +72,21 @@ def login_view():
         user = dao.auth_user(username, password)
         if user:
             login_user(user=user)
+            print(f"Next URL: {next_url}")  # In ra giá trị next_url để kiểm tra
             if user.vai_tro == VaiTro.USER:
-                return redirect('/')
+                # return redirect('/')
+                # Nếu có next_url thì chuyển hướng về đó, nếu không thì về trang chủ
+                # Kiểm tra nếu next_url hợp lệ
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(url_for('index'))
             elif user.vai_tro == VaiTro.EMPLOYEE:
                 return redirect('/page/sellticket')
             else:
-                pass
+                # Mặc định nếu có vai trò khác chưa xử lý
+                flash("Tài khoản không có quyền truy cập.", "danger")
+                return redirect(url_for('index'))
         else:
             # Kiểm tra nếu tài khoản tồn tại
             if dao.is_username_exists(username):
@@ -306,6 +335,7 @@ def choose_ticket_return():
     return render_template('Employees/choose_ticket_return.html', airlines=airlines, flights=flights)
 
 
+<<<<<<< HEAD
 @app.route('/page/booktickets', methods=['get'])
 def book_tickets():
     list_alphabet = app.config["LIST_ALPHABET"]
@@ -392,6 +422,9 @@ def sell_ticket_session():
 def pay_ticket():
 
     return render_template('Employees/pay_tickets.html')
+=======
+
+>>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 if __name__ == '__main__':
     app.run(debug=True)
