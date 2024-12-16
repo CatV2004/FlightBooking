@@ -1,0 +1,549 @@
+{% extends 'layout/base.html' %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+{% block custom_head_scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../static/js/pay.js"></script>
+{% endblock %}
+
+{% block custom_styles %}
+
+<link type="text/css" rel="stylesheet" href="../static/css/info_customer.css"/>
+<link type="text/css" rel="stylesheet" href="../static/css/info_detail_flight.css"/>
+<link type="text/css" rel="stylesheet" href="../static/css/pay.css"/>
+
+{% endblock %}
+
+{% block content %}
+
+<body class="position-relative">
+<div class="container-main">
+
+    <div class="container mt-5">
+        <div class="row d-flex">
+            <div class="col-md-8">
+                <form method="POST" action="{{ url_for('customer.payment') }}">
+
+                    <div class="payment-container">
+                        <div class="payment-header">
+                            <h2>Bạn muốn thanh toán thế nào?</h2>
+                        </div>
+
+                        <div class="bank-option d-flex justify-content-between">
+                            <div class="d-flex  f-13">
+                                <div class="pe-3 rd-pay">
+                                    <input type="radio" name="payment-method" checked>
+                                </div>
+                                <div>
+                                    <span class="f-500">Chuyển tiền qua Vietinbank</span>
+                                </div>
+                            </div>
+                            <div class="image">
+                                <img src="https://res.cloudinary.com/dohsfqs6d/image/upload/v1734108339/Logo-VietinBank-02_ibxcr9.png"
+                                     alt="Vietinbank">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="f-13 f-500">Thêm mã giảm giá</span>
+                                </div>
+                                <div class="d-flex flex-wrap align-items-end add-code">
+                                    <a href="#" class="text-primary fb" style="text-decoration: none;">Thêm mã</a>
+                                </div>
+                            </div>
+                            <div class="discount-section">
+
+                                <div class="d-flex justify-content-between">
+                                    <span>TEST100</span>
+                                    <span class="text-danger">-168.354 VND</span>
+                                </div>
+                                <div class="text-muted">20/11/2024 - 30/11/2024</div>
+                            </div>
+                            {% include 'discount_modal.html' %}
+
+                        </div>
+
+                        <div class="flex-column total-section-general ">
+                            <div class="total-section d-flex">
+                                <div>
+                                    <span class="f-500 f-13">Tổng chi phí</span>
+                                </div>
+                                <div class="price d-flex f-12">
+                                    <div>
+                                        <span class="text-danger"> {{ "{:,.0f}".format(flight_data.price|float * ticket_quantity|int + (flight_data_return.price|float * ticket_quantity|int if
+                                        flight_data_return else 0) + 266000 + 1) }} VND
+                                        </span>
+                                    </div>
+                                    <div class="arrow-icon px-3 toggle-detail" style="color: #484848b5; ">
+                                        <i class="fa fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="detail-bill">
+                                <ul class="list-unstyled mb-3">
+                                    <!-- Chuyến bay chiều đi -->
+                                    <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <span class="fw-bold">
+                                                {{ flight_data.airline }} ({{ ticket_quantity }} Hành khách)
+                                            </span>
+                                            <br>
+                                            <span class="text-muted">
+                                                {{ flight_data.details_flight[0].departure_airport.airport_code }} - {{ flight_data.details_flight[0].arrival_airport.airport_code }} | {{ departure_date }}
+                                            </span>
+                                        </div>
+                                        <span class="text-end">
+                                            {{ "{:,.0f}".format(flight_data.price|float * ticket_quantity|int ) }} VND
+                                        </span>
+                                    </li>
+
+                                    <!-- Chuyến bay chiều về (nếu có) -->
+                                    {% if flight_data_return %}
+                                    <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <span class="fw-bold">
+                                                {{ flight_data_return.airline }} ({{ ticket_quantity }} Hành khách)
+                                            </span>
+                                            <br>
+                                            <span class="text-muted">
+                                                {{ flight_data_return.details_flight[0].departure_airport.airport_code }} - {{ flight_data_return.details_flight[0].arrival_airport.airport_code }} | {{ return_date }}
+                                            </span>
+                                        </div>
+                                        <span class="text-end">
+                                            {{ "{:,.0f}".format(flight_data_return.price|float * ticket_quantity|int ) }} VND
+                                        </span>
+                                    </li>
+                                    {% endif %}
+                                    {% for passenger in passengers %}
+                                    {% if passenger.luggage.cost > 0 %}
+                                    <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <div>
+                                                <span class="fw-bold">Hành lý của {{ passenger.first_name }} {{ passenger.last_name }} ({{ passenger.luggage.weight }} kg)</span>
+                                            </div>
+                                            <span class="text-muted">
+                                                    {{ flight_data.details_flight[0].departure_airport.airport_code }} - {{ flight_data.details_flight[0].arrival_airport.airport_code }} | {{ departure_date }}
+                                                </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-end">{{ "{:,.0f}".format(passenger.luggage.cost) }} VND</span>
+                                        </div>
+                                    </li>
+                                    {% if passenger.luggage_return and passenger.luggage_return.cost > 0 %}
+                                    <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <div>
+                                                <span class="fw-bold">Hành lý về của {{ passenger.first_name }} {{ passenger.last_name }} ({{ passenger.luggage_return.weight }} kg)</span>
+                                            </div>
+                                            <span class="text-muted">
+                                                    {{ flight_data_return.details_flight[0].departure_airport.airport_code }} - {{ flight_data_return.details_flight[0].arrival_airport.airport_code }} | {{ return_date }}
+                                                </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-end">{{ "{:,.0f}".format(passenger.luggage_return.cost) }} VND</span>
+                                        </div>
+                                    </li>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+
+                                    <!-- Phí tiện ích -->
+                                    <li class="d-flex justify-content-between align-items-center py-2">
+                                        <div>
+                                            <span class="fw-bold">Phí tiện ích</span>
+                                        </div>
+                                        <span class="text-end">1 VND</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                        <div class="btn-payment">
+                            <button class="btn-qr w-100">Thanh toán bằng mã QR</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+
+            <div class="col-md-4 container-right">
+                <div class="card">
+
+                    <div class="card-body">
+                        <div class="row d-flex line-title mb-3">
+                            <div class="col-md-8 flex-column">
+                                <div>
+                                    <h5 class="card-title f-15 f-b">{{
+                                        flight_data.details_flight[0].departure_airport.airport_location }} &rarr;
+                                        {{
+                                        flight_data.details_flight[-1].arrival_airport.airport_location }}</h5>
+                                </div>
+                                <div>
+                                    <p class="card-text f-11 f-b">Chuyến bay đi | {{ departure_date }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-end">
+                                    <button class="btn-detail f-12" data-flight-type="outbound_flight">Chi tiết
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text row d-flex">
+                            <div class="col-md-3 d-flex justify-content-center">
+                                <div class="img d-flex">
+                                    <img src="{{ flight_data.logo }}" alt="{{ flight_data.airline }}"
+                                         width="50">
+                                </div>
+                            </div>
+                            <div class="col-md-9 flex-column d-flex justify-content-left p-0">
+                                <div class="airline-name">
+                                    <div class="f-12 f-b">{{ flight_data.airline }}</div>
+                                </div>
+                                <div class="seat-class">
+                                    <div class="fw-500">{% if seat_class == 1 %}
+                                                            Phổ thông
+                                                        {% else %}
+                                                            Thương gia
+                                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center p-3">
+                            <div class="flex-column">
+                                <div class="time f-b f-15">
+                                    <span>{{ flight_data.departureTime }}</span>
+                                </div>
+                                <div class="codeFlight cl-deep d-flex justify-content-around">
+                                    <p>{{ flight_data.details_flight[0].departure_airport.airport_code }}</p>
+                                </div>
+                            </div>
+                            <div class="flex-column mx-3">
+                                <div class="t-use">
+                                    <div class="codeFlight cl-deep d-flex justify-content-around">
+                                        <div class="p2">{{ flight_data.duration }}</div>
+                                    </div>
+                                </div>
+                                <div class="divider">
+                                    <span></span>
+                                </div>
+                                <div class="t-use">
+                                    <div class="codeFlight cl-deep d-flex justify-content-around">
+                                        <div class="p2">
+                                            {% if flight_data.stops > 0 %}
+                                            {{ flight_data.stops }} điểm dừng
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-column">
+                                <div class="time f-b f-15">
+                                    <span>{{ flight_data.arrivalTime }}</span>
+                                </div>
+                                <div class="codeFlight cl-deep d-flex justify-content-around">
+                                    <p>{{ flight_data.details_flight[0].arrival_airport.airport_code }}</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content">
+                                {% if flight_data.number_day > 0 %}
+                                <div class="p2 p-1">+{{ flight_data.number_day }} ngày</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+
+                    {% if flight_data_return %}
+                    <div class="card-body">
+                        <div class="row d-flex line-title mb-3">
+                            <div class="col-md-8 flex-column">
+                                <div>
+                                    <h5 class="card-title f-15 f-b">{{
+                                        flight_data_return.details_flight[0].departure_airport.airport_location }}
+                                        &rarr; {{
+                                        flight_data_return.details_flight[-1].arrival_airport.airport_location
+                                        }}</h5>
+                                </div>
+                                <div>
+                                    <p class="card-text f-11 f-b">Chuyến bay về | {{ return_date }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-end">
+                                    <button class="btn-detail f-12" data-flight-type="return_flight">Chi tiết
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text row d-flex">
+                            <div class="col-md-3 d-flex justify-content-center">
+                                <div class="img d-flex">
+                                    <img src="{{ flight_data_return.logo }}" alt="{{ flight_data_return.airline }}"
+                                         width="50">
+                                </div>
+                            </div>
+                            <div class="col-md-9 flex-column d-flex justify-content-left p-0">
+                                <div class="airline-name">
+                                    <div class="f-12 f-b">{{ flight_data_return.airline }}</div>
+                                </div>
+                                <div class="seat-class">
+                                    <div class="fw-500">
+                                                        {% if seat_class == 1 %}
+                                                            Phổ thông
+                                                        {% else %}
+                                                            Thương gia
+                                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center p-3">
+                            <div class="flex-column">
+                                <div class="time f-b f-15">
+                                    <span>{{ flight_data_return.departureTime }}</span>
+                                </div>
+                                <div class="codeFlight cl-deep d-flex justify-content-around">
+                                    <p>{{ flight_data_return.details_flight[0].departure_airport.airport_code }}</p>
+                                </div>
+                            </div>
+                            <div class="flex-column mx-3">
+                                <div class="t-use">
+                                    <div class="codeFlight cl-deep d-flex justify-content-around">
+                                        <div class="p2">{{ flight_data_return.duration }}</div>
+                                    </div>
+                                </div>
+                                <div class="divider">
+                                    <span></span>
+                                </div>
+                                <div class="t-use">
+                                    <div class="codeFlight cl-deep d-flex justify-content-around">
+                                        <div class="p2">
+                                            {% if flight_data_return.stops > 0 %}
+                                            {{ flight_data_return.stops }} điểm dừng
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-column">
+                                <div class="time f-b f-15">
+                                    <span>{{ flight_data_return.arrivalTime }}</span>
+                                </div>
+                                <div class="codeFlight cl-deep d-flex justify-content-around">
+                                    <p>{{ flight_data_return.details_flight[0].arrival_airport.airport_code }}</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content">
+                                {% if flight_data_return.number_day > 0 %}
+                                <div class="p2 p-1">+{{ flight_data_return.number_day }} ngày</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Modal outbound_flight -->
+<div class="modal fade" id="flightDetailModal-outbound_flight" tabindex="-1"
+     aria-labelledby="flightDetailModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="flightDetailModalLabel-outbound_flight">Chi tiết chuyến bay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-flight-card">
+                    <div class="flight-schedule-container">
+                        {% for detail in flight_data.details_flight %}
+                        <div class="flight-schedule flex-column p-4 pt-0">
+                            <div class="details">
+                                <div class="d-flex row">
+                                    <div class="col-md-1 flex-column mr-1 p-0 justify-content-center">
+                                        <div class="time">{{ detail.departure_time }}</div>
+                                        <div class="cl-deep f-2 fw">{{ detail.departure_date }}</div>
+                                    </div>
+                                    <div class="col-md-1 body-mid">
+                                        <div class="flex-column" style="position: relative;">
+                                            <div class="circle d-flex"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10 flex-column">
+                                        <div class="time">
+                                            {{ detail.departure_airport.airport_name }} ({{
+                                            detail.departure_airport.airport_code }})
+                                        </div>
+                                        <div class="cl-deep f-3 fw">Sân bay {{
+                                            detail.departure_airport.airport_location
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex row" style="height: 100px;">
+                                    <div class="col-md-1 d-flex p-0 justify-content-center">
+                                        <div class="cl-deep f-4 d-flex justify-content-center align-items-center">{{
+                                            detail.duration }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 body-mid">
+                                        <div class="d-flex" style="position: relative;">
+                                            <div class="line-col d-flex"></div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex col-md-10 justify-content-start">
+                                        <div class="time mx-3 d-flex justify-content-center align-items-center">{{
+                                            detail.airline }}
+                                        </div>
+                                        <div class="logo-flight d-flex justify-content-center align-items-center">
+                                            <img src="{{ detail.logo }}" alt="{{ detail.airline }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex row">
+                                    <div class="col-md-1 flex-column mr-1 p-0 justify-content-center">
+                                        <div class="time">{{ detail.arrival_time }}</div>
+                                        <div class="cl-deep f-2 fw">{{ detail.arrival_date }}</div>
+                                    </div>
+                                    <div class="col-md-1 body-mid">
+                                        <div class="d-flex" style="position: relative;">
+                                            <div class="circle d-flex"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10 flex-column">
+                                        <div class="time">
+                                            {{ detail.arrival_airport.airport_name }} ({{
+                                            detail.arrival_airport.airport_code }})
+                                        </div>
+                                        <div class="cl-deep f-3 fw">Sân bay {{
+                                            detail.arrival_airport.airport_location
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}
+                                <div class="stop_duration mb-2 mt-3 cl-deep d-flex f-b">
+                                    <span>Thời gian dừng: {{ detail.duration }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal return_flight -->
+<div class="modal fade" id="flightDetailModal-return_flight" tabindex="-1" aria-labelledby="flightDetailModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="flightDetailModalLabel-return_flight">Chi tiết chuyến bay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-flight-card">
+                    <div class="flight-schedule-container">
+                        {% for detail in flight_data_return.details_flight %}
+                        <div class="flight-schedule flex-column p-4 pt-0">
+                            <div class="details">
+                                <div class="d-flex row">
+                                    <div class="col-md-1 flex-column mr-1 p-0 justify-content-center">
+                                        <div class="time">{{ detail.departure_time }}</div>
+                                        <div class="cl-deep f-2 fw">{{ detail.departure_date }}</div>
+                                    </div>
+                                    <div class="col-md-1 body-mid">
+                                        <div class="flex-column" style="position: relative;">
+                                            <div class="circle d-flex"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10 flex-column">
+                                        <div class="time">
+                                            {{ detail.departure_airport.airport_name }} ({{
+                                            detail.departure_airport.airport_code }})
+                                        </div>
+                                        <div class="cl-deep f-3 fw">Sân bay {{
+                                            detail.departure_airport.airport_location
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex row" style="height: 100px;">
+                                    <div class="col-md-1 d-flex p-0 justify-content-center">
+                                        <div class="cl-deep f-4 d-flex justify-content-center align-items-center">{{
+                                            detail.duration }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 body-mid">
+                                        <div class="d-flex" style="position: relative;">
+                                            <div class="line-col d-flex"></div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex col-md-10 justify-content-start">
+                                        <div class="time mx-3 d-flex justify-content-center align-items-center">{{
+                                            detail.airline }}
+                                        </div>
+                                        <div class="logo-flight d-flex justify-content-center align-items-center">
+                                            <img src="{{ detail.logo }}" alt="{{ detail.airline }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex row">
+                                    <div class="col-md-1 flex-column mr-1 p-0 justify-content-center">
+                                        <div class="time">{{ detail.arrival_time }}</div>
+                                        <div class="cl-deep f-2 fw">{{ detail.arrival_date }}</div>
+                                    </div>
+                                    <div class="col-md-1 body-mid">
+                                        <div class="d-flex" style="position: relative;">
+                                            <div class="circle d-flex"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10 flex-column">
+                                        <div class="time">
+                                            {{ detail.arrival_airport.airport_name }} ({{
+                                            detail.arrival_airport.airport_code }})
+                                        </div>
+                                        <div class="cl-deep f-3 fw">Sân bay {{
+                                            detail.arrival_airport.airport_location
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}
+                                <div class="stop_duration mb-2 mt-3 cl-deep d-flex f-b">
+                                    <span>Thời gian dừng: {{ detail.duration }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+{% endblock %}

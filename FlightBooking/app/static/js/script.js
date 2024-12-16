@@ -40,9 +40,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     returnDate.disabled = false; // Enable return date input
             } else {
                     returnDate.disabled = true; // Disable return date input
-                    returnDate.value = ''; // Clear value if unchecked
             }
     });
+
+    function swapValues() {
+        const fromInput = document.getElementById('from');
+        const toInput = document.getElementById('to');
+
+        // Kiểm tra giá trị input
+        if (fromInput.value && toInput.value) {
+            // Thực hiện hoán đổi
+            const temp = fromInput.value;
+            fromInput.value = toInput.value;
+            toInput.value = temp;
+        } else {
+            // Thông báo nếu không có đủ dữ liệu
+            alert('Vui lòng chọn sân bay đi và sân bay đến trước khi hoán đổi!');
+        }
+    }
+
+    // Gắn hàm swapValues vào phạm vi toàn cục
+    window.swapValues = swapValues;
 
 
      // Tăng/giảm số lượng vé
@@ -84,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Đặt data vào dropdown
             data.forEach(sanBay => {
-                const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
+                const displayText = `Sân bay ${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
 
                 // Tạo option cho dropdown "Sân bay đi"
                 const fromOption = document.createElement('div');
@@ -122,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Lọc danh sách sân bay theo từ khóa tìm kiếm
         const filteredAirports = window.airports.filter(sanBay => {
-            const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
+            const displayText = `Sân bay ${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
             return displayText.toLowerCase().includes(searchTerm);
         });
 
@@ -131,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Thêm các sân bay đã lọc vào dropdown
         filteredAirports.forEach(sanBay => {
-            const displayText = `${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
+            const displayText = `Sân bay ${sanBay.ten_san_bay} (${sanBay.dia_diem}) - ${sanBay.ma_san_bay}`;
 
             const option = document.createElement('div');
             option.classList.add('dropdown-option');
@@ -178,16 +196,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Hàm hoán đổi giá trị giữa "Sân bay đi" và "Sân bay đến"
-    function swapValues() {
-        const fromInput = document.getElementById('from');
-        const toInput = document.getElementById('to');
-
-        const fromValue = fromInput.value;
-        fromInput.value = toInput.value;
-        toInput.value = fromValue;
-    }
-
     // Đóng dropdown khi nhấp bên ngoài input hoặc dropdown
     document.addEventListener('click', function(event) {
         const fromDropdown = document.getElementById('from-options');
@@ -226,38 +234,111 @@ document.addEventListener('DOMContentLoaded', function () {
         return parts.length > 1 ? parts[1] : ""; // Nếu có mã sân bay, trả về mã; nếu không, trả về chuỗi rỗng
     }
 
-    function submitAirportCodes() {
-        // Lấy giá trị từ các input
-        const fromInput = document.getElementById("from").value.trim();
-        const toInput = document.getElementById("to").value.trim();
+    // Hàm gửi dữ liệu lên server
+    function sendAirportCodes() {
+        const fromInput = document.getElementById('from').value;
+        const toInput = document.getElementById('to').value;
+        const departure_date = document.getElementById('departure_date').value;
+        const return_date_input  = document.getElementById('returnDate').value;
+        const seat_class = document.getElementById('seatClass').value;
+        const ticket_quantity = document.getElementById('ticketQuantity').value;
 
-        // Tách mã sân bay từ chuỗi hiển thị (dựa vào dấu '-')
+        // Lấy trạng thái của checkbox
+        const roundTripChecked = document.getElementById('roundTripToggle').checked;
+
+
+
+        // Tách mã sân bay từ chuỗi input
         const fromCode = extractAirportCode(fromInput);
         const toCode = extractAirportCode(toInput);
+        const return_date = roundTripToggle.checked ? return_date_input.value : null;
 
-        if (fromCode && toCode) {
-            // Gửi dữ liệu đến Flask backend
-            fetch("/customer/search-flights", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ from: fromCode, to: toCode }),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    console.log("Server response:", data); // Xử lý phản hồi từ server
-                    if (data.error) {
-                        alert(data.error); // Hiển thị lỗi nếu có
-                    } else {
-                        alert(`Tìm chuyến bay từ ${data.from} đến ${data.to}`);
-                    }
-                })
-                .catch((error) => console.error("Error:", error));
-        } else {
-            alert("Vui lòng nhập cả mã sân bay đi và đến đúng định dạng.");
+        // Kiểm tra nếu mã sân bay hợp lệ
+        if (!fromCode || !toCode) {
+            alert('Vui lòng chọn sân bay đi và đến hợp lệ.');
+            return;
         }
+
+        // Kiểm tra nếu nơi đi trùng với nơi đến
+        if (fromCode === toCode) {
+            alert('Sân bay đi không thể trùng với sân bay đến.');
+            return;
+        }
+
+         // Kiểm tra nếu ngày đi chưa được nhập
+        if (!departure_date) {
+            alert('Vui lòng chọn ngày đi.');
+            return;
+        }
+
+        // Kiểm tra nếu ngày đi không thể trước ngày hiện tại
+        const currentDate = new Date();
+        const departureDateObj = new Date(departure_date);
+
+        // Đặt ngày hiện tại về dạng chỉ ngày (không có giờ)
+        currentDate.setHours(0, 0, 0, 0);
+
+        if (departureDateObj < currentDate) {
+            alert('Đã hết chuyến bay.');
+            return;
+        }
+
+        // Kiểm tra nếu checkbox "Khứ hồi" được tick và ngày về chưa được nhập
+        if (roundTripToggle.checked && !return_date_input) {
+            alert('Vui lòng chọn ngày về.');
+            return;
+        }
+
+        // Nếu có ngày về và checkbox "Khứ hồi" được tick, kiểm tra ngày về có trước ngày đi không
+        if (roundTripToggle.checked && return_date_input) {
+            const departureDateObj = new Date(departure_date);
+            const returnDateObj = new Date(return_date_input);
+
+            // Kiểm tra ngày về có trước ngày đi không
+            if (returnDateObj < departureDateObj) {
+                alert('Ngày về không thể trước ngày đi.');
+                return_date_input.value = '';
+                return;
+            }
+        }
+
+
+        // Gửi dữ liệu qua API
+        fetch('/customer/submit-airport-codes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                from: fromCode, to: toCode,
+                departure_date: departure_date,
+                return_date: roundTripChecked ? return_date_input : null,
+                seat_class: seat_class,
+                ticket_quantity: ticket_quantity,
+                round_trip: roundTripChecked
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (roundTripChecked) {
+                    window.location.href = '/customer/flights_roundtrip';
+                } else {
+                    window.location.href = '/customer/flights_normal';
+                }
+            } else {
+                alert('Đã xảy ra lỗi khi gửi mã sân bay.');
+            }
+        })
+        .catch(error => console.error('Lỗi khi gửi mã sân bay:', error));
     }
+
+    // Gắn sự kiện click cho nút gửi (hoặc thay nút tùy thuộc vào giao diện của bạn)
+    const submitButton = document.getElementById('btnSearch');
+    if (submitButton) {
+        submitButton.addEventListener('click', sendAirportCodes);
+    }
+
 
 });
 

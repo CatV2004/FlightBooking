@@ -58,7 +58,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Tên đăng nhập</label>
                                     <input type="text" class="form-control mb-1"
-                                           value="{{ current_user.ten_dang_nhap }}" readonly>
+                                           value="{{ current_user.tai_khoan.ten_dang_nhap }}" readonly>
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-md-6">
@@ -75,31 +75,31 @@
                                 <div class="form-group">
                                     <label class="form-label">Ngày sinh</label>
                                     <input type="text" class="form-control mb-1" name="ngay_sinh"
-                                           value="{{ current_user.nguoi_dung.ngay_sinh.strftime('%d/%m/%Y') if current_user.nguoi_dung and current_user.nguoi_dung.ngay_sinh else '' }}">
+                                           value="{{ current_user.ngay_sinh.strftime('%d/%m/%Y') if current_user and current_user.ngay_sinh else '' }}">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Số CCCD</label>
                                     <input type="text" class="form-control mb-1" name="so_CCCD"
-                                           value="{{ current_user.so_CCCD if current_user.nguoi_dung and current_user.nguoi_dung.so_CCCD else '' }} ">
+                                           value="{{ current_user.so_CCCD if current_user and current_user.so_CCCD else '' }} ">
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Địa chỉ</label>
                                     <input type="text" class="form-control mb-1" name="dia_chi"
-                                           value="{{ current_user.dia_chi if current_user.nguoi_dung and current_user.nguoi_dung.dia_chi else '' }} ">
+                                           value="{{ current_user.dia_chi if current_user and current_user.dia_chi else '' }} ">
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Số điện thoại</label>
                                     <input type="text" class="form-control mb-1" name="so_dien_thoai"
-                                           value="{{ current_user.so_dien_thoai if current_user.nguoi_dung and current_user.nguoi_dung.so_dien_thoai else '' }} ">
+                                           value="{{ current_user.so_dien_thoai if current_user and current_user.so_dien_thoai else '' }} ">
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">E-mail</label>
                                     <input type="email" class="form-control mb-1" name="email"
-                                           value="{{ current_user.email if current_user.nguoi_dung and current_user.nguoi_dung.email else '' }} "
-                                           {% if current_user.ten_dang_nhap.endswith('@gmail.com') %}readonly{% endif %}
+                                           value="{{ current_user.email if current_user and current_user.email else '' }} "
+                                           {% if current_user.tai_khoan.ten_dang_nhap.endswith('@gmail.com') %}readonly{% endif %}
                                     >
                                 </div>
 
@@ -121,19 +121,19 @@
                                 <div class="form-group">
                                     <label class="form-label">Mật khẩu hiện tại</label>
                                     <input type="password" class="form-control" name="current_password"
-                                           {% if current_user.ten_dang_nhap.endswith('@gmail.com') %} readonly required {% endif %}
+                                           {% if current_user.tai_khoan.ten_dang_nhap.endswith('@gmail.com') %} readonly required {% endif %}
                                     >
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Mật khẩu mới</label>
                                     <input type="password" class="form-control" name="new_password"
-                                           {% if current_user.ten_dang_nhap.endswith('@gmail.com') %} readonly required {% endif %}
+                                           {% if current_user.tai_khoan.ten_dang_nhap.endswith('@gmail.com') %} readonly required {% endif %}
                                     >
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nhập lại mật khẩu</label>
                                     <input type="password" class="form-control" name="confirm_password"
-                                           {% if current_user.ten_dang_nhap.endswith('@gmail.com') %} readonly required {% endif %}
+                                           {% if current_user.tai_khoan.ten_dang_nhap.endswith('@gmail.com') %} readonly required {% endif %}
                                     >
                                 </div>
                                 <div class="text-end m-3">
