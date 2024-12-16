@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const fromInput = document.querySelector('input[placeholder="City"][name="from"]');
         const toInput = document.querySelector('input[placeholder="City"][name="to"]');
 
-<<<<<<< HEAD
         if (fromInput && toInput) {
               // Swap the values
               const temp = fromInput.value;
@@ -58,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         returnDate.value = ''; // Clear value if unchecked
                 }
         });
-=======
     roundTripToggle.addEventListener('change', function () {
             if (this.checked) {
                     returnDate.disabled = false; // Enable return date input
@@ -363,7 +361,5 @@ document.addEventListener('DOMContentLoaded', function () {
         submitButton.addEventListener('click', sendAirportCodes);
     }
 
-
->>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 });
 

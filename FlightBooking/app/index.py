@@ -1,10 +1,7 @@
 import math
-<<<<<<< HEAD
 #from crypt import methods
 
 from passlib.hash import md5_crypt as md5
-=======
->>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 from flask import render_template, request, redirect, jsonify, url_for, session, flash
 from numpy.f2py.symbolic import ewarn
@@ -335,7 +332,6 @@ def choose_ticket_return():
     return render_template('Employees/choose_ticket_return.html', airlines=airlines, flights=flights)
 
 
-<<<<<<< HEAD
 @app.route('/page/booktickets', methods=['get'])
 def book_tickets():
     list_alphabet = app.config["LIST_ALPHABET"]
@@ -422,9 +418,7 @@ def sell_ticket_session():
 def pay_ticket():
 
     return render_template('Employees/pay_tickets.html')
-=======
 
->>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 if __name__ == '__main__':
     app.run(debug=True)

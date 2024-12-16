@@ -1,12 +1,8 @@
-<<<<<<< HEAD
 from datetime import datetime, timedelta
 from itertools import groupby
 
 from app.models import TaiKhoan, NguoiDung, Admin, KhachHang, NhanVien, KhuVuc, SanBay, Ghe, HangMayBay, TuyenBay, ChuyenBay, SanBayTrungGian, MayBay
-=======
-from datetime import datetime
-from app.models import TaiKhoan, NguoiDung, Admin, KhachHang, NhanVien, HangThanhVien
->>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
+
 from app import app, db
 import hashlib
 import cloudinary.uploader
@@ -78,11 +74,7 @@ def auth_user(username, password):
 
 def get_user_by_id(user_id):
     return db.session.query(NguoiDung).join(TaiKhoan, TaiKhoan.nguoi_dung_id == NguoiDung.id) \
-<<<<<<< HEAD
-        .filter(TaiKhoan.id == user_id).first()
-=======
         .filter(NguoiDung.id == user_id).first()
->>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
 
 
 # Kiểm tra username có tồn tại không
@@ -95,8 +87,7 @@ def load_area():
     return KhuVuc.query.all()
 
 
-<<<<<<< HEAD
-# load san bay
+
 def load_airport():
     return SanBay.query.order_by('ma_khu_vuc').all()
 
@@ -215,7 +206,6 @@ def load_chair(chuyen_bay):
         func.sum(Ghe.ma_ghe),
 
     )
-=======
 def update_user_profile(user_id, fname, lname, ngay_sinh, dia_chi, so_CCCD, so_dien_thoai, email):
     try:
         # Lấy người dùng thông qua `nguoi_dung_id` trong bảng TaiKhoan
@@ -266,4 +256,3 @@ def update_password(user, new_password):
         print(f"Error updating password: {ex}")
         raise ex
 
->>>>>>> e8b351a644d36cdc502eed3d8f95fd13c6f0389b
