@@ -4,6 +4,7 @@ from urllib.parse import quote
 import cloudinary
 from flask_login import LoginManager
 from authlib.integrations.flask_client import OAuth
+from datetime import datetime
 
 
 # Database flight
@@ -11,6 +12,24 @@ app = Flask(__name__)
 app.secret_key = 'DQ23QE@#e@@ef2#$v2#4@#Rcr2453#$2wedE1@EX1@E'
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/flightbookingsystem?charset=utf8mb4" % quote("Admin@123")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+app.config["LIST_ALPHABET"] = [chr(i) for i in range(65, 91)]
+app.config["NUMBER_STOP"] = {
+    'Bay trực tiếp': 0,
+    'Một điểm dừng': 1,
+    'Hai điểm dừng': 2,
+}
+app.config["TIME_FLIGHT"] = {
+    'Chuyến Bay Sáng' : 12,
+    'Chuyến Bay Chiều': 18,
+    'Chuyến Bay Tối': 24,
+}
+app.config["TICKET_CATEGORY"] ={
+    "Phổ thông" : "PHOTHONG",
+    "Thương gia" : "THUONGGIA"
+}
+app.config["TIME_NOW"] = datetime.now()
+
+app.config["CHOOSE_TICKET_RETURN"] = False
 db = SQLAlchemy(app)
 
 # Database sub
@@ -18,6 +37,7 @@ app_sub = Flask(__name__)
 app_sub.secret_key = 'ADA3DF3@#$233fW3SF#@$SDDF2!@#%'
 app_sub.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/subdb?charset=utf8mb4" % quote("Admin@123")
 app_sub.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+app_sub.config["QUANTITY_TICKETS"] = 1
 db_sub = SQLAlchemy(app_sub)
 
 #API Cloudinary

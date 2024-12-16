@@ -7,26 +7,13 @@
         <div class="collapse navbar-collapse justify-content-center" id="mynavbar">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <div class="dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            Thao tác vé
-                        </a>
-                        <ul class="dropdown-menu custom-dropdown">
-                            <li><a class="dropdown-item" href="BanVe">Bán vé</a></li>
-                            <li><a class="dropdown-item" href="DoiVe">Đổi vé</a></li>
-                            <li><a class="dropdown-item" href="HuyVe">Hủy vé</a></li>
-                            <li><a class="dropdown-item" href="XuatVe">Xuất vé</a></li>
-                        </ul>
-                    </div>
+                    <a class="nav-link" href="/page/sellticket">Thao tác vé</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="laplich">Lập lịch</a>
+                    <a class="nav-link" href="/page/schedule">Lập lịch chuyến bay</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="DoiVe">Đổi vé</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#contact">Tra cứu chyến bay</a>
+                    <a class="nav-link" href="#contact">Liên hệ quản trị viên</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto d-flex align-items-center fl">
@@ -52,7 +39,7 @@
                              class="rounded-circle me-2"
                              alt="User Avatar"/>
                         <div>
-                            <strong>{{ current_user.fname }}</strong>
+                            <strong>{{current_user.fname}}</strong>
                         </div>
                     </a>
                     <!-- Nội dung dropdown -->

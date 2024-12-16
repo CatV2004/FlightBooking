@@ -8,7 +8,6 @@ from datetime import date, time, datetime  # Import đúng kiểu datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.testing import fails
-
 from app import db, app, db_sub
 import hashlib
 from enum import Enum as RoleEnum
@@ -44,6 +43,25 @@ class LoaiVe(RoleEnum):
     MOTCHIEU = 1
     KHUHOI = 2
 
+
+
+class NguoiDung(db.Model, UserMixin):
+    __tablename__ = 'NguoiDung'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    fname = Column(String(50), nullable=False, unique=False)
+    lname = Column(String(50), nullable=False)
+    dia_chi = Column(String(200))
+    email = Column(String(100), nullable=False, unique=False)
+    so_dien_thoai = Column(String(15), nullable=True)
+    ngay_sinh = Column(Date)
+    so_CCCD = Column(String(12), unique=True, nullable=True)
+    tai_khoan = relationship("TaiKhoan", backref='NguoiDung', uselist=False)
+    ve = relationship("Ve", backref='NguoiDung')
+
+    def __str__(self):
+        return self.lname
+
+
 class TaiKhoan(db.Model, UserMixin):
     __tablename__ = 'TaiKhoan'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -51,7 +69,8 @@ class TaiKhoan(db.Model, UserMixin):
     mat_khau = Column(String(100), nullable=False)
     trang_thai = Column(db.Boolean, default=True)
     vai_tro = Column(Enum(VaiTro), default=VaiTro.USER, nullable=False)
-    nguoi_dung = relationship("NguoiDung", backref='TaiKhoan', uselist=False)
+
+    nguoi_dung_id = Column(Integer, ForeignKey(NguoiDung.id), nullable=False)
 
     @property
     def lname(self):
@@ -77,22 +96,9 @@ class TaiKhoan(db.Model, UserMixin):
     def so_dien_thoai(self):
         return self.nguoi_dung.so_dien_thoai if self.nguoi_dung else None
 
+    def get_id(self):
+        return str(self.id)
 
-
-class NguoiDung(db.Model, UserMixin):
-    __tablename__ = 'NguoiDung'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    fname = Column(String(50), nullable=False, unique=False)
-    lname = Column(String(50), nullable=False)
-    dia_chi = Column(String(200))
-    email = Column(String(100), nullable=False, unique=False)
-    so_dien_thoai = Column(String(15), nullable=True)
-    ngay_sinh = Column(Date)
-    so_CCCD = Column(String(12), unique=True, nullable=True)
-    tai_khoan_id = Column(Integer, ForeignKey(TaiKhoan.id), nullable=True)
-
-    def __str__(self):
-        return self.lname
 
 class Admin(NguoiDung, UserMixin):
     __tablename__ = 'Admin'
@@ -101,7 +107,7 @@ class Admin(NguoiDung, UserMixin):
     kinh_nghiem = Column(String(200))
 
     __mapper_args__ = {
-        'inherit_condition': id == TaiKhoan.id
+        'inherit_condition': id == NguoiDung.id
     }
 
 
@@ -112,7 +118,7 @@ class KhachHang(NguoiDung, UserMixin):
     don_hang = relationship('DonHang', backref='KhachHang')
 
     __mapper_args__ = {
-        'inherit_condition': id == TaiKhoan.id
+        'inherit_condition': id == NguoiDung.id
     }
 
 
@@ -125,7 +131,7 @@ class NhanVien(NguoiDung, UserMixin):
     don_hang = relationship('DonHang', backref='NhanVien')
 
     __mapper_args__ = {
-        'inherit_condition': id == TaiKhoan.id
+        'inherit_condition': id == NguoiDung.id
     }
 
 
@@ -133,6 +139,7 @@ class HangMayBay(db.Model):
     __tablename__ = 'HangMayBay'
     so_hieu_hangmb = Column(String(10), primary_key=True)
     ten_hang = Column(String(50), nullable=False)
+    lo_go = Column(String(500))
     may_bay = relationship("MayBay", backref='HangMayBay')
 
     def __str__(self):
@@ -142,10 +149,13 @@ class HangMayBay(db.Model):
 class MayBay(db.Model):
     __tablename__ = 'MayBay'
     so_hieu_mb = Column(String(10), primary_key=True)
-    so_ghe_trong = Column(Integer, nullable=True)  # Số ghế trống
     hang_may_bay_ID = Column(String(10), ForeignKey(HangMayBay.so_hieu_hangmb), nullable=False)
     ghe = relationship('Ghe', backref='MayBay')
     chuyen_bay = relationship('ChuyenBay', backref='MayBay')
+
+    def __init__(self, so_hieu_mb, hang_may_bay_ID):
+        self.so_hieu_mb = so_hieu_mb
+        self.hang_may_bay_ID = hang_may_bay_ID
 
 
 class HanhLy(db.Model):
@@ -176,21 +186,29 @@ class DieuKienKM(db.Model):
     khuyen_mai_id = Column(String(10), ForeignKey(KhuyenMai.ma_KM), nullable=False)
 
 
-# class ChiTietKM(db.Model):
-
 class Ghe(db.Model):
     __tablename__ = 'Ghe'
     ma_ghe = Column(String(10), primary_key=True)
     hang_ve = Column(Enum(HangVe), default=HangVe.PHOTHONG, nullable=False)
+    vi_tri = Column(String(10), nullable=False)
+    trang_thai = Column(Boolean, default=False, nullable=False)
     may_bay = Column(String(10), ForeignKey(MayBay.so_hieu_mb), nullable=False)
+
     ve = relationship('Ve', backref='Ghe')
+
+    def __init__(self, ma_ghe, hang_ve, vi_tri, trang_thai, may_bay):
+        self.ma_ghe = ma_ghe
+        self.hang_ve = hang_ve
+        self.vi_tri = vi_tri
+        self.trang_thai = trang_thai
+        self.may_bay = may_bay
 
 
 class DonHang(db.Model):
     __tablename__ = 'DonHang'
     ma_DH = Column(String(10), primary_key=True)
     khach_hang = Column(Integer, ForeignKey(KhachHang.id), nullable=False)
-    nhan_vien = Column(Integer, ForeignKey(NhanVien.id), nullable=False)
+    nhan_vien = Column(Integer, ForeignKey(NhanVien.id), nullable=True)
     ngay_dat_DH = Column(DateTime, nullable=False, default=func.now())
     ve = relationship('Ve', backref='DonHang')
     thanh_toan = relationship('ThanhToan', backref='DonHang')
@@ -200,6 +218,7 @@ class Ve(db.Model):
     __tablename__ = 'Ve'
     ma_ve = Column(String(10), primary_key=True)
     ma_don_hang = Column(String(10), ForeignKey(DonHang.ma_DH), nullable=False)
+    nguoi_so_huu = Column(Integer, ForeignKey(NguoiDung.id), nullable=False)
     ngay_xuat_ve = Column(DateTime, nullable=True)
     loai_ve = Column(Enum(LoaiVe), default=LoaiVe.MOTCHIEU, nullable=False)
     ma_KM = Column(String(10), ForeignKey(KhuyenMai.ma_KM), nullable=True)
@@ -216,15 +235,30 @@ class LichBay(db.Model):
     ngay_lap_lich = Column(Date, nullable=True)
 
 
+class KhuVuc(db.Model):
+    __tablename__ = 'KhuVuc'
+    ma_khu_vuc = Column(String(10), primary_key=True)
+    ten_khu_vuc = Column(String(50), nullable=False)
+    san_bay = relationship('SanBay', backref='KhuVuc')
+
+
 class SanBay(db.Model):
     __tablename__ = 'SanBay'
     ma_san_bay = Column(String(10), primary_key=True)
+    ten_san_bay = Column(String(50), nullable=False)
     dia_diem = Column(String(50), nullable=False)
+    ma_khu_vuc = Column(String(10), ForeignKey(KhuVuc.ma_khu_vuc), nullable=False)
 
     # # Các tuyến bay liên kết với sân bay này
     # tuyen_bay = relationship('TuyenBay', backref='SanBay')
 
     san_bay_trung_gian = relationship('SanBayTrungGian', backref='SanBay')
+
+    def __init__(self, ma_san_bay, ten_san_bay, dia_diem, ma_khu_vuc):
+        self.ma_san_bay = ma_san_bay
+        self.ten_san_bay = ten_san_bay
+        self.dia_diem = dia_diem
+        self.ma_khu_vuc = ma_khu_vuc
 
 
 class TuyenBay(db.Model):
@@ -238,13 +272,23 @@ class TuyenBay(db.Model):
 
     san_bay_trung_gian = relationship('SanBayTrungGian', backref='TuyenBay')
 
+    def __init__(self, ma_tuyen_bay, san_bay_den, san_bay_di):
+        self.ma_tuyen_bay = ma_tuyen_bay
+        self.san_bay_den = san_bay_den
+        self.san_bay_di = san_bay_di
+
 
 class SanBayTrungGian(db.Model):
     __tablename__ = 'SanBayTrungGian'
     ma_san_bay = Column(String(10), ForeignKey(SanBay.ma_san_bay), primary_key=True)
     ma_tuyen_bay = Column(String(10), ForeignKey(TuyenBay.ma_tuyen_bay), primary_key=True)
-    thoi_gian_su_dung = Column(Float, nullable=True)
+    ma_chuyen_bay = Column(String(10), ForeignKey('ChuyenBay.ma_chuyen_bay'), nullable=False)  # Thêm cột này
+    thoi_gian_dung_chan = Column(DateTime, nullable=True)
+    thoi_gian_tiep_tuc = Column(DateTime, nullable=True)
+    thu_tu = Column(Integer, nullable=False)
     ghi_chu = Column(String(200), nullable=True)
+
+    chuyen_bay = relationship('ChuyenBay', back_populates='san_bay_trung_gian')  # Thiết lập quan hệ
 
 
 class BaoCao(db.Model):
@@ -270,7 +314,19 @@ class ChuyenBay(db.Model):
     gia_chuyen_bay = Column(Float, nullable=False)
     thoi_gian_di = Column(DateTime, nullable=False)
     thoi_gian_den = Column(DateTime, nullable=False)
+
     chi_tiet_cb = relationship('ChiTietChuyenBay', backref='ChuyenBay')
+    san_bay_trung_gian = relationship('SanBayTrungGian', back_populates='chuyen_bay',
+                                      cascade='all, delete-orphan')  # Thiết lập quan hệ
+
+    def __init__(self, ma_chuyen_bay, may_bay, tuyen_bay, lich_bay, gia_chuyen_bay, thoi_gian_di, thoi_gian_den):
+        self.ma_chuyen_bay = ma_chuyen_bay
+        self.may_bay = may_bay
+        self.tuyen_bay = tuyen_bay
+        self.lich_bay = lich_bay
+        self.gia_chuyen_bay = gia_chuyen_bay
+        self.thoi_gian_di = thoi_gian_di
+        self.thoi_gian_den = thoi_gian_den
 
 
 class ChiTietChuyenBay(db.Model):
@@ -294,4 +350,3 @@ if __name__ == '__main__':
         db.drop_all()
         # Tái tạo các bảng nếu cần
         db.create_all()
-
