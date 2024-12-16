@@ -1,0 +1,224 @@
+<style>
+    /* Cải thiện thiết kế của modal */
+    .modal-content {
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-out;
+    }
+
+    .modal-dialog {
+      max-width: 500px;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    /* Định dạng cho input */
+    #discountCode {
+      font-size: 0.7rem;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    /* Nút tìm kiếm */
+    .btn-info {
+      background-color: #017C8D;
+      color: white;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-info:hover {
+      background-color: #016767;
+    }
+
+    /* Thiết kế cho alert */
+    .alert-info {
+      background-color: #e9f7fa;
+      border-radius: 8px;
+      padding: 7px 12px!important;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .alert-info strong {
+      font-weight: 700;
+    }
+
+    /* Thêm hiệu ứng cho modal */
+    .modal.fade .modal-dialog {
+      transform: translate(0, -100px);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .modal.show .modal-dialog {
+      transform: translate(0, 0);
+    }
+
+
+    /* Tạo hiệu ứng khi hover vào mã khuyến mãi */
+    .clickable-discount {
+        cursor: pointer;
+        transition: all 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà */
+    }
+
+    .clickable-discount:hover {
+        background-color: #17a2b8; /* Thay đổi màu nền khi hover */
+        color: white; /* Thay đổi màu chữ */
+        transform: scale(1.02); /* Phóng to nhẹ */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    }
+
+    .clickable-discount:hover strong {
+        color: #fff; /* Đổi màu chữ của strong */
+    }
+
+    .selected-discount {
+        border: 2px solid #42a5f5 !important; /* Viền xanh dương đậm */
+        background-color: #17a2b8; /* Thay đổi màu nền khi hover */
+        color: white; /* Thay đổi màu chữ */
+        transform: scale(1.02); /* Phóng to nhẹ */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+</style>
+<!-- Modal -->
+<div class="modal fade" id="discountModal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="discountModalLabel">Thêm giám giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="flex-column">
+                        <div class="d-flex row">
+                            <label for="discountCode" class="form-label">Nhập mã giảm</label>
+                            <div class="mb-3 col-md-9">
+                                <input type="text" class="form-control" id="discountCode"
+                                       placeholder="Nhập mã giảm giá">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" id="searchDiscount" class="btn btn-info w-100">Tìm kiếm</button>
+                            </div>
+                        </div>
+                        <div id="discountResult" class="mt-4">
+                            <!-- Nội dung sẽ được cập nhật ở đây -->
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="applyDiscount" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+<script>
+
+    let selectedDiscount = null; // Lưu mã khuyến mãi đang được chọn
+
+    // Tìm kiếm mã khuyến mãi
+    document.querySelector('#searchDiscount').addEventListener('click', function() {
+        const discountCode = document.querySelector('#discountCode').value.trim();
+
+        if (!discountCode) {
+            alert('Vui lòng nhập mã giảm giá!');
+            return;
+        }
+
+        fetch('/search-discount', {  // Route này tìm kiếm mã khuyến mãi
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: discountCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultContainer = document.querySelector('#discountResult');
+
+            if (data.status === 'success') {
+                resultContainer.innerHTML = `
+                    <div class="alert alert-info d-flex justify-content-between clickable-discount"
+                         role="alert" style="cursor: pointer;"
+                         onclick="selectDiscount(this, '${data.discount_code}')">
+                        <div class="flex-column">
+                            <div class="d-flex">
+                                <strong>${data.discount_code}</strong>
+                            </div>
+
+                            <div class="d-flex">
+                                Giảm ${data.discount_percentage}% giá vé
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end">
+                            <small>${data.start_date} - ${data.end_date}</small>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        ${data.message}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => console.error('Lỗi:', error));
+    });
+
+    // Chọn một mã khuyến mãi
+    function selectDiscount(element, discountCode) {
+        // Bỏ chọn mã khuyến mãi cũ nếu có
+        if (selectedDiscount) {
+            selectedDiscount.classList.remove('selected-discount');
+        }
+
+        // Nếu nhấn vào mã đã chọn, hủy chọn
+        if (selectedDiscount === element) {
+            selectedDiscount = null; // Không chọn mã nào
+        } else {
+            // Chọn mã mới
+            element.classList.add('selected-discount');
+            selectedDiscount = element;
+        }
+    }
+
+    // Gửi mã khuyến mãi được chọn lên server khi nhấn OK
+    document.querySelector('#applyDiscount').addEventListener('click', function() {
+        if (!selectedDiscount) {
+            alert('Vui lòng chọn một mã giảm giá!');
+            return;
+        }
+
+        const discountCode = selectedDiscount.querySelector('strong').textContent;
+
+        fetch('/apply-discount', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: discountCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                $('#discountModal').modal('hide');
+            } else {
+                alert('Có lỗi xảy ra: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Lỗi:', error));
+    });
+
+
+</script>

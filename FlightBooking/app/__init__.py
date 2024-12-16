@@ -8,6 +8,7 @@ from authlib.integrations.flask_client import OAuth
 
 # Database flight
 app = Flask(__name__)
+
 app.secret_key = 'DQ23QE@#e@@ef2#$v2#4@#Rcr2453#$2wedE1@EX1@E'
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/flightbookingsystem?charset=utf8mb4" % quote("Admin@123")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
@@ -41,6 +42,9 @@ google = oauth.register(
 )
 
 
-
-
 login = LoginManager(app)
+
+
+
+
+
