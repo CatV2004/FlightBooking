@@ -1,7 +1,4 @@
 import math
-#from crypt import methods
-
-from passlib.hash import md5_crypt as md5
 
 from flask import render_template, request, redirect, jsonify, url_for, session, flash
 from numpy.f2py.symbolic import ewarn
@@ -9,7 +6,8 @@ from datetime import datetime
 import dao
 from app import app, login, google, db
 from flask_login import login_user, login_required, logout_user, current_user
-from app.models import TaiKhoan, VaiTro, SanBay
+
+from app.models import TaiKhoan, VaiTro
 
 
 @app.route("/")
@@ -48,6 +46,7 @@ def login_view():
     if request.method.__eq__('POST'):
         username = request.form.get('username')
         password = request.form.get('password')
+
         # Sử dụng hàm auth_user để xác thực
         user = dao.auth_user(username, password)
         if user:
@@ -55,7 +54,7 @@ def login_view():
             if user.vai_tro == VaiTro.USER:
                 return redirect('/')
             elif user.vai_tro == VaiTro.EMPLOYEE:
-                return redirect('/page/sellticket')
+                return render_template('Employees/index.html')
             else:
                 pass
         else:
@@ -66,8 +65,6 @@ def login_view():
                 err_msg = 'Tài khoản không tồn tại.'
 
     return render_template('login.html', err_msg=err_msg)
-
-
 
 
 # Gọi đăng nhập Google
@@ -206,192 +203,6 @@ def update_password_route():
 
     return redirect(url_for('profile'))  # Redirect về trang profile sau khi thành công
 
-
-#Ham luu du lieu chuyen bay tam thoi
-def save_data_flight_temp(flight, name):
-    info_flight = session.get(name)
-    cleaned_data = flight.replace("datetime.datetime", "datetime")
-    flight_update = eval(cleaned_data)  # chuyen chuoi thanh tuple
-    if not info_flight:
-        info_flight= {}
-    info_flight.update({
-        "hang_bay": flight_update[0],
-        "noi_di": flight_update[1],
-        "noi_den": flight_update[2],
-        "ngay_di": flight_update[3],
-        "ngay_ve": flight_update[4],
-        "gia_tien": flight_update[5],
-        "so_luong_diem_dung": flight_update[6],
-        "ma_chuyen_bay": flight_update[7]
-    })
-    return info_flight
-
-@app.route('/page/chooseticket', methods=['get','post'])
-def choose_ticket():
-    app.config["CHOOSE_TICKET_RETURN"] = False
-    airlines = dao.load_airline()
-    flights = dao.load_flight(session['info']['noi_di'], session['info']['noi_den'], session['info']['ngay_di'], session['info']['so_luong_hanh_khach'][0], app.config["TICKET_CATEGORY"][session['info']['hang_ve']])
-    if request.method == "POST":
-        flight = request.form.get('flight')
-        info_flight_one = save_data_flight_temp(flight, 'info_flight_one')
-        session['info_flight_one'] = info_flight_one
-        if session['info']['loai_ve'] == "Khứ Hồi":
-            return redirect('/page/chooseticketreturn')
-        return redirect('/page/booktickets')
-    return render_template('Employees/choose_ticket.html', airlines=airlines, flights=flights)
-
-
-
-@app.route('/api/searchflights', methods=['get','post'])
-def searchflights():
-    so_diem_dung = thoi_gian_bay = hang_bay = ''
-    if request.method == 'POST':
-        so_diem_dung = request.json.get('so_diem_dung')
-        thoi_gian_bay = request.json.get('thoi_gian_bay')
-        hang_bay = request.json.get('hang_bay')
-
-    flight = session.get('flight')
-    if not flight:
-        flight = {}
-    flight.update({
-        "so_diem_dung": so_diem_dung,
-        "thoi_gian_bay": thoi_gian_bay,
-        "hang_bay": hang_bay
-    })
-    session["flight"] = flight
-
-    temp_time_flight = 12 if thoi_gian_bay == "Chuyến Bay Sáng" else 6 # Bien de tinh thoi gian
-
-    temp_number_stop = 4 if so_diem_dung == "Số điểm dừng" else app.config["NUMBER_STOP"][so_diem_dung]
-
-    noi_di = session['info']['noi_di'] if app.config["CHOOSE_TICKET_RETURN"] == False else session['info']['noi_den']
-    noi_den = session['info']['noi_den'] if app.config["CHOOSE_TICKET_RETURN"] == False else session['info']['noi_di']
-    ngay_bay = session['info']['ngay_di'] if app.config["CHOOSE_TICKET_RETURN"] == False else session['info']['ngay_ve']
-
-    flights1 = dao.load_flight_click_search(noi_di, noi_den, ngay_bay,
-                                            temp_number_stop, 35 if thoi_gian_bay == "Thời gian bay" else app.config["TIME_FLIGHT"][thoi_gian_bay],
-                                            hang_bay, temp_time_flight,app.config["TICKET_CATEGORY"][session['info']['hang_ve']],
-                                            session['info']['so_luong_hanh_khach'][0])
-    flights = [dict(flight._mapping) for flight in flights1] # mapping là thuôcj tính của đôi tượng row của sqlalchema cho phép chuyển row thành dic
-    list_time_flight = []
-    list_date_flight = []
-    for i in range(0, len(flights)):
-        time ={
-            "thoi_gian_di": flights[i]['thoi_gian_di'].strftime('%H:%M'),
-            'thoi_gian_den': flights[i]['thoi_gian_den'].strftime('%H:%M')
-        }
-        date = {
-            "thoi_gian_di": repr(flights[i]['thoi_gian_di']), # chuyen doi tuong thanh chuoi
-            'thoi_gian_den': repr(flights[i]['thoi_gian_den'])
-        }
-        list_date_flight.append(date)
-        list_time_flight.append(time)
-
-    return jsonify({'flights_data': flights, 'list_time_flight': list_time_flight, 'list_date_flight':list_date_flight})
-
-@app.route('/page/chooseticketreturn', methods=['get','post'])
-def choose_ticket_return():
-    app.config["CHOOSE_TICKET_RETURN"] = True
-    airlines = dao.load_airline()
-    flights = dao.load_flight(session['info']['noi_den'], session['info']['noi_di'], session['info']['ngay_ve'],
-                              session['info']['so_luong_hanh_khach'][0],
-                              app.config["TICKET_CATEGORY"][session['info']['hang_ve']])
-
-    if request.method == "POST":
-        flight = request.form.get('flight')
-        info_flight_two = save_data_flight_temp(flight, 'info_flight_two')
-        session['info_flight_two'] = info_flight_two
-        return redirect('/page/booktickets')
-
-    return render_template('Employees/choose_ticket_return.html', airlines=airlines, flights=flights)
-
-
-@app.route('/page/booktickets', methods=['get'])
-def book_tickets():
-    list_alphabet = app.config["LIST_ALPHABET"]
-    print(session['info_flight_one']['ma_chuyen_bay'])
-    quantity_chair = dao.load_quantity_chair(session['info_flight_one']['ma_chuyen_bay'])
-    print(quantity_chair)
-    return render_template('Employees/book_tickets.html',  list_alphabet=list_alphabet, quantity = int(session['info']['so_luong_hanh_khach'][0]))
-
-#Hủy vé
-@app.route('/page/cancelticket', methods=['get'])
-def cancel_tickets():
-
-    return render_template('Employees/cancel_tickets.html')
-
-
-#Đổi vé
-@app.route('/page/changeticket', methods=['get'])
-def change_tickets():
-
-    return render_template('Employees/change_ticket.html')
-
-
-# Lập lịch
-@app.route('/page/schedule', methods=['get'])
-def schedule_flight():
-
-    return render_template('Employees/schedule.html')
-
-
-#Xuất vé
-@app.route('/page/printticket', methods=['get'])
-def print_ticket():
-
-    return render_template('Employees/print_ticket.html')
-
-
-#Bán vé
-@app.route('/page/sellticket', methods=['get', 'post'])
-def sell_ticket():
-    time_now = datetime.today()
-    airports = dao.load_airport()
-    areas = dao.load_area()
-    err_msg = ''
-    if request.method == 'POST':
-        fromInput = request.form.get('fromInput')
-        toInput = request.form.get('toInput')
-        if fromInput != toInput and fromInput != '' and toInput != '':
-            return redirect('/page/chooseticket')
-        else:
-            err_msg = 'Dữ liệu không đúng'
-    return render_template('Employees/sell_ticket.html', time_now=time_now.strftime('%Y-%m-%d'), airports=airports, areas=areas, err_msg=err_msg)
-
-
-#Lấy dữ liệu trang sell_ticket lưu tạm thời
-@app.route('/api/sellticket', methods=['post'])
-def sell_ticket_session():
-    info = session.get('info')
-    if not info:
-        info = {}
-
-    loai_ve = request.json.get('loai_ve')
-    so_luong_hanh_khach = request.json.get('so_luong_hanh_khach')
-    hang_ve = request.json.get('hang_ve')
-    noi_di = request.json.get('noi_di')
-    noi_den = request.json.get('noi_den')
-    ngay_di = request.json.get('ngay_di')
-    ngay_ve = request.json.get('ngay_ve')
-
-    info.update({
-        "loai_ve": loai_ve,
-        "so_luong_hanh_khach": so_luong_hanh_khach,
-        "hang_ve": hang_ve,
-        "noi_di": noi_di,
-        "noi_den": noi_den,
-        "ngay_di": ngay_di,
-        "ngay_ve": ngay_ve
-    })
-    session['info'] = info
-    return jsonify(info)
-
-
-#Thanh Toán
-@app.route('/page/paytickets', methods=['get'])
-def pay_ticket():
-
-    return render_template('Employees/pay_tickets.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
